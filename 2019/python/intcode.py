@@ -93,8 +93,8 @@ class IntcodeComputer:
 
                 elif op == 4:  self.output += [_decode(p-1,*args)]
 
-            except KeyError:  
-                i = -99
+            except (KeyError, IndexError):
+                break
             else:
                 if not reset: i += p
                 if op == 4 and self.mode == 'yield': break
