@@ -44,6 +44,12 @@ class IntcodeComputer:
     def set_addr(self,addr,val):
         
         self.addr[addr] = val
+
+    def dry_run(self,inp=None):
+
+        out = self.run(inp)
+        self.reset()
+        return out
   
     def run(self,inp=None):
 
@@ -89,8 +95,8 @@ class IntcodeComputer:
 
                 elif op == 4:  self.output += [_decode(p-1,*args)]
 
-            except KeyError:  
-                i = -99
+            except (KeyError, IndexError):
+                break
             else:
                 if not reset: i += p
                 if op == 4 and self.mode == 'yield': break
