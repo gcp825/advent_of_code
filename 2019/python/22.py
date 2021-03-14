@@ -4,9 +4,9 @@
 
 #  Full disclosure: my original solution used a modular inverse calculation, but I can't claim any deep maths knowledge was required - it was clear that to invert existing 
 #  functions we needed to reverse the modulo somehow, so I googled that, found code to do it and just used that (with a couple of stylistic changes). The most difficult bit 
-#  was actually trying to work out how to use that function i.e. where to invoke it in the inverse formula, but a bit of trial and error sorted that out. However, when I then
-#  had a look at the reddit solutions thread, it was mentioned that this wasn't necessary... the repeating nature of the deck means you can calculate the value of a card in a
-#  specified position by using the formulae from part 1 with deck_size-y-1 shuffles, so as it fits with what I was attempting to do here I've since retrofitted that approach.
+#  was actually trying to work out how to use that function i.e. where to invoke it in the inverse formula, but a bit of trial and error sorted that out. However, I then
+#  checked the reddit solutions thread, and it was mentioned that this wasn't necessary... the repeating nature of the deck means you can calculate the value of a card in a
+#  specified position by using the formulae from part 1 with deck_size-y-1 shuffles, so as it fits with what I was attempting here I've since retrofitted that approach.
 
 #  My basic summary here is: don't panic, don't get caught up with the mathy-ness of ot all, just focus on one problem at a time and you should get there.
 #  For detailed explanation of what the code is doing see 22_with_commentary.py in this repo (this is the 'clean' version!)
