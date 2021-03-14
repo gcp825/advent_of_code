@@ -1,4 +1,4 @@
-#  This puzzle seems to have gotten a lot of flack for requiring too much complicated math knowledge to solve. I disagree with that. Applying advanced maths is certainly one
+#  This puzzle seems to have gotten a lot of flack for requiring too much complicated math knowledge to solve. I disagree with that. Applying advanced maths is certainly a
 #  way to solve it, but AoC is a programming challenge, so there *should* be a way of solving it with a standard programming approach i.e logic, some brute force, a bit of
 #  experimentation, basic maths and a dash of stackoverflow... and this solution is basically that.
 
