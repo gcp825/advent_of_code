@@ -21,10 +21,6 @@ class Monkey:
         self.items = items
         self.inspections += len(self.items)
 
-    def catch(self,item):
-
-        self.items += [item]
-
     def target(self):
 
         return self.targets[min(self.items[0][2] % self.test,1)]
@@ -33,12 +29,16 @@ class Monkey:
 
         return self.items.pop(0)
 
+    def catch(self,item):
+
+        self.items += [item]
+
 
 def lcm(numbers):
 
     ''' Returns the Least Common Multiple from a supplied list of numbers '''
 
-    from math import gcd
+    def gcd(a, b): return a if b == 0 else gcd(b,a % b)
 
     nums = list(sorted(list(set(numbers))))[::-1]
 
