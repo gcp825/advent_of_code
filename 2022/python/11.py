@@ -11,12 +11,12 @@ class Monkey:
     def examine(self): 
 
         items = []
-        for mod_reductions, modulo, old in self.items:
+        for mod_reductions, divisor, old in self.items:
             new = eval(self.reaction) // self.reducer
-            if new >= modulo:
-                new = new % modulo
+            if new >= divisor:
+                new = new % divisor
                 mod_reductions += 1
-            items += [(mod_reductions,modulo,new)]
+            items += [(mod_reductions,divisor,new)]
 
         self.items = items
         self.inspections += len(self.items)
@@ -49,10 +49,10 @@ def lcm(numbers):
 
 def main(filepath,rounds,reducer=1):
 
-    modulo = lcm([int(x[3][21:]) for x in [x.split('\n') for x in open(filepath).read().split('\n\n')]])
+    divisor = lcm([int(x[3][21:]) for x in [x.split('\n') for x in open(filepath).read().split('\n\n')]])
 
     monkeys = [Monkey(*m) for m in 
-                  [(int(a[7:-1]), [(0,modulo,i) for i in list(map(int,b[18:].split(', ')))], c[19:], int(d[21:]), int(e[29:]), int(f[30:]), reducer)
+                  [(int(a[7:-1]), [(0,divisor,i) for i in list(map(int,b[18:].split(', ')))], c[19:], int(d[21:]), int(e[29:]), int(f[30:]), reducer)
                       for a,b,c,d,e,f in [tuple(x.split('\n')) for x in open(filepath).read().split('\n\n')]]]
 
     for _ in range(rounds):
