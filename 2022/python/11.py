@@ -38,7 +38,7 @@ def lcm(numbers):
 
     ''' Returns the Least Common Multiple from a supplied list of numbers '''
 
-    def gcd(a, b): return a if b == 0 else gcd(b,a % b)
+    def gcd(a,b): return a if b == 0 else gcd(b,a % b)
 
     nums = list(sorted(list(set(numbers))))[::-1]
 
@@ -49,11 +49,13 @@ def lcm(numbers):
 
 def main(filepath,rounds,reducer=1):
 
-    divisor = lcm([int(x[3][21:]) for x in [x.split('\n') for x in open(filepath).read().split('\n\n')]])
+    input = [tuple(x.split('\n')) for x in open(filepath).read().split('\n\n')]
+
+    divisor = lcm([int(x[3][21:]) for x in input])
 
     monkeys = [Monkey(*m) for m in 
                   [(int(a[7:-1]), [(0,divisor,i) for i in list(map(int,b[18:].split(', ')))], c[19:], int(d[21:]), int(e[29:]), int(f[30:]), reducer)
-                      for a,b,c,d,e,f in [tuple(x.split('\n')) for x in open(filepath).read().split('\n\n')]]]
+                      for a,b,c,d,e,f in input]]
 
     for _ in range(rounds):
 
