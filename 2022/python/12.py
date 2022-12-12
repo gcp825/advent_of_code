@@ -8,16 +8,16 @@ def adjacent_coords(coords):
     return [tuple(map(sum,zip(coords,{'N':(-1,0),'E':(0,1),'S':(1,0),'W':(0,-1)}[d]))) for d in 'NESW']
 
             
-def route_search(map,start=False,break_on=9**9):
+def route_search(map,start_coords=False,break_on=9**9):
 
     queue  = [k for k,v in map.items() if v == 'S']
     target = [k for k,v in map.items() if v == 'E'][0]
 
-    map[queue[0]] = 'a';  map[target]   = 'z'
+    map[queue[0]] = 'a';  map[target] = 'z'
 
     visited = set();  steps = 0
 
-    if start: queue = [start]
+    if start_coords: queue = [start_coords]
 
     while queue:
 
@@ -44,9 +44,9 @@ def main(filepath):
     pt1 = route_search({**map})
     pt2 = pt1
 
-    for start in [k for k,v in map.items() if v == 'a']:
+    for start_coords in [k for k,v in map.items() if v == 'a']:
 
-        steps = route_search({**map},start,pt2)
+        steps = route_search({**map},start_coords,pt2)
         pt2 = min(steps,pt2)
 
     return pt1, pt2
