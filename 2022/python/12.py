@@ -1,54 +1,64 @@
-def build_map(filepath):
+def setup_search(filepath,start,end):
 
-    return dict([((y,x),terrain) for y,row in enumerate(open(filepath).read().split('\n')) for x,terrain in enumerate(row)])
+    map = dict([((y,x),height) for y,row in enumerate(open(filepath).read().split('\n')) for x,height in enumerate(row)])
+
+    S = [k for k,v in map.items() if v == 'S'][0]
+    E = [k for k,v in map.items() if v == 'E'][0]
+
+    queue   = [k for k,v in map.items() if v == start] + ([S] if start == 'a' else [E] if start == 'z' else [])
+    targets = [k for k,v in map.items() if v == end]   + ([S] if end == 'a'   else [E] if end == 'z'   else [])
+
+    map[S], map[E] = ('a','z')
+
+    compare = '<' if (start == 'S' or end == 'E') else '>' if (start == 'E' or end == 'S') else '<' if start <= end else '>'
+
+    return map, queue, targets, compare
 
 
 def adjacent_coords(coords):
 
     return [tuple(map(sum,zip(coords,{'N':(-1,0),'E':(0,1),'S':(1,0),'W':(0,-1)}[d]))) for d in 'NESW']
 
+
+def valid_moves(map,location,visited,compare):
+
+    return [c for c in adjacent_coords(location) 
+               if c in map and c not in visited and ((compare == '<' and (ord(map[c]) - ord(map[location])) <= 1)
+                                                 or  (compare == '>' and (ord(map[location]) - ord(map[c])) <= 1))]
+
             
-def route_search(map,start_coords=False,break_on=9**9):
+def route_search(filepath,start,end):
 
-    queue  = [k for k,v in map.items() if v == 'S']
-    target = [k for k,v in map.items() if v == 'E'][0]
+    map, queue, targets, compare = setup_search(filepath,start,end)
 
-    map[queue[0]] = 'a';  map[target] = 'z'
+    visited = set(queue)
+    steps = 0
 
-    visited = set();  steps = 0
+    if len(list(set(queue+targets))) == len(queue+targets): 
 
-    if start_coords: queue = [start_coords]
+        while queue:
 
-    while queue:
+            steps += 1; new_queue = []
 
-        steps += 1; new_queue = set()
+            for location in queue:
 
-        for location in queue:
+                moves = valid_moves(map,location,visited,compare)
 
-            visited.add(location)
+                targets_found = [c for c in moves if c in targets]
 
-            moves = [c for c in adjacent_coords(location) if c in map and c not in visited and (ord(map.get(c,'~')) - ord(map[location])) <= 1]
+                if targets_found or steps == len(map): return steps
 
-            if target in moves or steps == break_on: return steps
+                visited.update(moves)
+                new_queue += moves
 
-            new_queue.update(moves)
+            queue = [] + new_queue
 
-        queue = list(new_queue)
-
-    return break_on
+    return steps
 
 
 def main(filepath):
 
-    map = build_map(filepath)
-    pt1 = route_search({**map})
-    pt2 = pt1
+    return route_search(filepath,'S','E'), route_search(filepath,'E','a')
 
-    for start_coords in [k for k,v in map.items() if v == 'a']:
-
-        steps = route_search({**map},start_coords,pt2)
-        pt2 = min(steps,pt2)
-
-    return pt1, pt2
     
 print(main('12.txt'))
