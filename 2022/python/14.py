@@ -34,14 +34,14 @@ def main(filepath,part2=False):
 
         y,x = origin
 
-        while True:
+        while grid.get((y,x),'.') == '.':
 
             move = [coords for coords in [(y+1,x),(y+1,x-1),(y+1,x+1)] if grid.get(coords,'.') == '.' and (y+1) < floor][:1]
 
-            if move: y,x = move[0]
+            if move: 
+                y,x = move[0]
             else:
-                grid[(y,x)] = 'o' if part2 or y < abyss else '.'
-                break
+                grid[(y,x)] = 'o' if part2 or y < abyss else 'x'
 
     return sum([1 for v in grid.values() if v == 'o'])
 
