@@ -1,11 +1,10 @@
-#  Hastily combined both parts into a single piece of code, but it feels a bit messy - needs a tidy up for code clarity
-#  There may also be a performance tweak I can make to instantly drop a grain of sand as far as it can go vertically in one hit
-#  rather than evaluating each step individually - this may or may not be worthwhile depending on the actual layout of the grid.
+#  This is a bit tidier than my original code. Still need to come up with a slicker way of parsing the input and creating the grid.
+#  Also need to look at implementing each vertical drop as a single move rather than a step by step iteration.
 
 def setup_grid(filepath):
 
     rocks = [[tuple(map(int,x.split(',')))[::-1] for x in y] for y in [z.split(' -> ') for z in open(filepath).read().split('\n')]]
-    grid  = {(0,500):'+'}
+    grid  = {(0,500):'.'}
 
     for rock in rocks:
 
@@ -22,33 +21,29 @@ def setup_grid(filepath):
 
                 grid[(y,x)] = '#'
 
-    return grid, max(grid)[0]+1
+    return grid
 
 
-def main(filepath,part1=True):
+def main(filepath,part2=False):
 
-    grid, abyss = setup_grid(filepath)
+    grid = setup_grid(filepath)
 
-    origin = (0,500)
-    
-    while ((part1 and max(grid.keys())[0] < abyss)
-       or (not part1 and [location for location in [(1,499),(1,500),(1,501)] if grid.get(location,'.') == '.'])):
+    abyss = max(grid)[0]+1;  floor = abyss+1;  y = abyss-1;  origin = [k for k,v in grid.items() if v == '.'][0]; 
+
+    while (not part2 and y < abyss) or (part2 and grid[origin] == '.'):
 
         y,x = origin
 
         while True:
 
-            move = [location for location in [(y+1,x),(y+1,x-1),(y+1,x+1)] if grid.get(location,'.') == '.'][:1]
+            move = [coords for coords in [(y+1,x),(y+1,x-1),(y+1,x+1)] if grid.get(coords,'.') == '.' and (y+1) < floor][:1]
 
-            if move and y < abyss:
-                y,x = move[0]
+            if move: y,x = move[0]
             else:
-                grid[(y,x)] = 'o'
+                grid[(y,x)] = 'o' if part2 or y < abyss else '.'
                 break
 
-    sand = sum([1 for v in grid.values() if v == 'o'])
-
-    return sand-1 if part1 else sand+1
+    return sum([1 for v in grid.values() if v == 'o'])
 
     
-print((main('14.txt'),main('14.txt',False)))
+print((main('14.txt'),main('14.txt',True)))
