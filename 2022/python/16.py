@@ -1,6 +1,7 @@
 #  Really happy with the interpretation of the puzzle and the implementation of Part 1.
-#  Part 2 is clunky and slow though - not sure there's actually a way around that given what the puzzle is asking for, 
-#  unless I can come up with a heuristic to prune bad journeys that don't hit the high value valves early.
+#  Part 2 is clunky and slow though - whilst the approach I'm using was the quickest way to get Star 2, it's pretty rubbish as a
+#  permanent solution (unless I can come up with a heuristic to prune bad journeys that don't hit the high value valves early).
+#  Likely need to refactor the Part 1 solution to cater for two related journeys running in parallel.
 
 def parse_input(f):
 
