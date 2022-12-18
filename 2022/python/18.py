@@ -10,8 +10,8 @@ def identify_void_cubes(cubes):
 
     visited = set();  adj = (-1,0,1)
 
-    min_x, max_x = min([x for _,_,x in cubes]), max([x for _,_,x in cubes])
-    min_y, max_y = min([y for _,_,y in cubes]), max([y for _,_,y in cubes])
+    min_x, max_x = min([x for x,_,_ in cubes]), max([x for x,_,_ in cubes])
+    min_y, max_y = min([y for _,y,_ in cubes]), max([y for _,y,_ in cubes])
     min_z, max_z = min([z for _,_,z in cubes]), max([z for _,_,z in cubes])
 
     not_cubes = [(x,y,z) for x in range(min_x,max_x+1) for y in range(min_y,max_y+1) for z in range(min_z,max_z+1) if (x,y,z) not in cubes]
