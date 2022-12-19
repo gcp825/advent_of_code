@@ -15,11 +15,11 @@ def parse_input(f):
 
 def choose_actions(robots,substances,costs):
 
-    purchase = lambda x: min([substances[i] // costs[x][i] for i in range(3) if costs[x][i] > 0])
+    makeable = lambda x: min([substances[i] // costs[x][i] for i in range(3) if costs[x][i] > 0])
 
     queue_updates = []
 
-    if purchase(3):
+    if makeable(3):
         
         updated_robots      =  [r+1 if i == 3 else r for i,r in enumerate(robots)]
         updated_substances  =  [substances[i] - costs[3][i] for i in range(3)]+[substances[3]]
@@ -27,12 +27,12 @@ def choose_actions(robots,substances,costs):
 
     else:
 
-        for idx, affordable in enumerate([purchase(i) for i in range(4)]):
+        for idx, affordable in enumerate([makeable(i) for i in range(4)]):
 
             if affordable:
-                updated_robots    =  [r+1 if idx == i else r for i,r in enumerate(robots)]
+                updated_robots      =  [r+1 if idx == i else r for i,r in enumerate(robots)]
                 updated_substances  =  [substances[i] - costs[idx][i] for i in range(3)]+[substances[3]]    
-                queue_updates     += [(updated_robots,updated_substances)]
+                queue_updates       += [(updated_robots,updated_substances)]
 
         queue_updates += [(robots,substances)]
 
@@ -41,8 +41,8 @@ def choose_actions(robots,substances,costs):
 
 def determine_quality(blueprint,minutes):
 
-    costs   = blueprint[1:]
-    robots   = [1,0,0,0]
+    costs      = blueprint[1:]
+    robots     = [1,0,0,0]
     substances = [0,0,0,0]
 
     queue = [(robots,substances)]
@@ -55,11 +55,11 @@ def determine_quality(blueprint,minutes):
 
             robots, substances = queue.pop(0)
 
-            updated_with_actions = choose_actions(robots,substances,costs)
+            new_queue_inc_actions = choose_actions(robots,substances,costs)
 
-            updated_with_collections = [(r,[c[0]+w, c[1]+x, c[2]+y, c[3]+z]) for r,c in updated_with_actions for w,x,y,z in [tuple(robots)]]
+            new_queue_inc_collections = [(r,[c[0]+w, c[1]+x, c[2]+y, c[3]+z]) for r,c in new_queue_inc_actions for w,x,y,z in [tuple(robots)]]
 
-            new_queue += updated_with_collections
+            new_queue += new_queue_inc_collections
 
         new_queue = [(list(x),list(y)) for x,y in list(set([(tuple(x),tuple(y)) for x,y in new_queue]))]
 
