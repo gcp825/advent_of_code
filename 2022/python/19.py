@@ -57,7 +57,7 @@ def determine_quality(blueprint,minutes):
 
             new_queue_inc_actions = choose_actions(robots,substances,costs)
 
-            new_queue_inc_collections = [(r,[c[0]+w, c[1]+x, c[2]+y, c[3]+z]) for r,c in new_queue_inc_actions for w,x,y,z in [tuple(robots)]]
+            new_queue_inc_collections = [(r,[s[0]+w, s[1]+x, s[2]+y, s[3]+z]) for r,s in new_queue_inc_actions for w,x,y,z in [tuple(robots)]]
 
             new_queue += new_queue_inc_collections
 
