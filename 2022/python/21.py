@@ -45,6 +45,7 @@ def binary_search(numbers,sums):
         b = s if t > 0 else b
 
     while t == 0:
+
         s -= 1
         t = monkey_business(numbers,sums,s)
 
