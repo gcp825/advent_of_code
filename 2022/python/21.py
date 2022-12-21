@@ -1,7 +1,7 @@
-def monkey_business(orig_numbers,orig_sums,part2=False):
+def monkey_business(numbers,sums,part2=False):
 
-    numbers = {**orig_numbers}
-    sums    = [] + orig_sums
+    numbers = {**numbers}
+    sums    = [] + sums
 
     if type(part2) is int: 
         numbers['humn'] = part2
@@ -31,33 +31,33 @@ def monkey_business(orig_numbers,orig_sums,part2=False):
     return numbers['root']
 
 
-def binary_search(orig_numbers,orig_sums):
+def binary_search(numbers,sums):
 
-    a = monkey_business(orig_numbers,orig_sums,0)
-    b = monkey_business(orig_numbers,orig_sums,abs(a))
+    a = monkey_business(numbers,sums,0)
+    b = monkey_business(numbers,sums,abs(a))
     t = 1
 
     while t != 0:
 
         s = (a+b)//2
-        t = monkey_business(orig_numbers,orig_sums,s)
+        t = monkey_business(numbers,sums,s)
         a = s if t < 0 else a
         b = s if t > 0 else b
 
     while t == 0:
         s -= 1
-        t = monkey_business(orig_numbers,orig_sums,s)
+        t = monkey_business(numbers,sums,s)
 
     return s+1
 
 
 def main(filepath):
 
-    orig_numbers = dict([(k,int(v)) for k,v in [tuple(x.split(': ')) for x in open(filepath).read().split('\n')] if v.isnumeric()])
-    orig_sums    = [(k,v[:4],v[7:11],v[5]) for k,v in [tuple(x.split(': ')) for x in open(filepath).read().split('\n')] if not v.isnumeric()]
+    numbers = dict([(k,int(v)) for k,v in [tuple(x.split(': ')) for x in open(filepath).read().split('\n')] if v.isnumeric()])
+    sums    = [(k,v[:4],v[7:11],v[5]) for k,v in [tuple(x.split(': ')) for x in open(filepath).read().split('\n')] if not v.isnumeric()]
 
-    pt1 = monkey_business(orig_numbers,orig_sums)
-    pt2 = binary_search(orig_numbers,orig_sums)
+    pt1 = monkey_business(numbers,sums)
+    pt2 = binary_search(numbers,sums)
 
     return pt1, pt2
 
