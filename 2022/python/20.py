@@ -13,13 +13,13 @@ def main(filepath,cycles=10,decrypt_key=811589153):
 
             item = data.popleft()
 
-            data.rotate((-item[1]))
+            data.rotate(-item[1])
 
             data.appendleft(item)
 
     while data[0][1] != 0:  data.rotate(-1)
 
-    return data[1000][1] + data[2000][1] + data[3000][1]
+    return data[1000 % length][1] + data[2000 % length][1] + data[3000 % length][1]
 
 
 print((main('20.txt',1,1),main('20.txt')))
