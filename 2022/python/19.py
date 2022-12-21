@@ -1,8 +1,11 @@
 #  Runs for ~13 mins to produce the answer for both parts.
 #  The optimisation / pruning is relatively simple and minimal - mainly because my answers were too low the more cavalier I was with
 #  pruning the queue, so I had to scale that back and increase the run time to get the correct answer.
-#  Likely need to come up with an intelligent method of pruning based on removing states that can no longer return a better geode score 
-#  than the current best state.
+#  Likely need to come up with an intelligent method of pruning... some ideas for that... 
+#
+#  - Prune states with fewer than the minimum number of robots featured on states with the highest number of geodes
+#  - Don't create a robot on turn n+1 if the same robot could have been created on turn n but we chose to not create a robot at all
+#  - Stop creating new robots when the remaining time is such that the created robot could not contribute to the collection of a geode
 
 def parse_input(f):
 
