@@ -21,6 +21,10 @@ def decimal_to_snafu(n):
         snafu += [translate[digit+carry]]
         carry  = 1 if (digit + carry) > 2 else 0
 
+    if carry: 
+
+        snafu += [translate[carry]]
+
     return ''.join(snafu)[::-1]
 
 
