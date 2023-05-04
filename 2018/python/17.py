@@ -72,14 +72,14 @@ class Grid:
     def determine_bounds(self,y,x):
 
         xx = max([c[1] for c in self.rock if c[0] == y and c[1] < x])
-        escape = [(y,n) for n in range(xx+1,x+1) if (y+1,n) not in self.rock and (y+1,n) not in self.settled][-1:]
+        cascade = [(y,n) for n in range(xx+1,x+1) if (y+1,n) not in self.rock and (y+1,n) not in self.settled][-1:]
         
-        self.left, self.left_cascade = (escape[0], True) if escape else ((y,xx+1), False)
+        self.left, self.left_cascade = (cascade[0], True) if cascade else ((y,xx+1), False)
 
         xx = min([c[1] for c in self.rock if c[0] == y and c[1] > x])
-        escape = [(y,n) for n in range(x,xx) if (y+1,n) not in self.rock and (y+1,n) not in self.settled][:1]
+        cascade = [(y,n) for n in range(x,xx) if (y+1,n) not in self.rock and (y+1,n) not in self.settled][:1]
 
-        self.right, self.right_cascade = (escape[0], True) if escape else ((y,xx-1), False)
+        self.right, self.right_cascade = (cascade[0], True) if cascade else ((y,xx-1), False)
 
 
     def fill_reservoir(self,y,x):
@@ -89,7 +89,7 @@ class Grid:
         self.settled.update(settled_water)
         self.flow = self.flow - self.settled
 
-        y -= 1
+        y = y-1
         self.determine_bounds(y,x)
 
         if self.left_cascade or self.right_cascade:
