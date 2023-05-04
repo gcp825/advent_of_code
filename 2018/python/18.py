@@ -14,9 +14,14 @@ def count(s,y,x):
     return len(list(s.intersection([(y-1,x-1),(y-1,x),(y-1,x+1),(y,x-1),(y,x+1),(y+1,x-1),(y+1,x),(y+1,x+1)])))
 
 
+def score(trees,yards):
+
+    return len(list(trees)) * len(list(yards))
+
+
 def cycle(acres,trees,yards,minutes):
 
-    results, m = (dict(), 0)
+    scores, m = (dict(), 0)
 
     while m < minutes:
 
@@ -28,24 +33,25 @@ def cycle(acres,trees,yards,minutes):
         trees = new_trees.union([c for c in trees if c not in new_yards])
         yards = new_yards.union([c for c in yards if c not in new_acres])
 
-        m, results = fast_forward(m,minutes,results,trees,yards)
+        m, scores = add_minute_or_fast_forward(m, score(trees,yards), minutes, scores)
 
-        m += 1
-
-    return len(list(trees)) * len(list(yards))
+    return score(trees,yards)
 
 
-def fast_forward(m,minutes,results,trees,yards):
+def add_minute_or_fast_forward(m, score, minutes, scores):
 
-    if m > 500:
-        result = len(list(trees)) * len(list(yards))
-        if result in results:
-            m = minutes - ((minutes-m) % (m-results[result]))
-            results = dict()
-        else:
-            results[result] = m
+    mins = scores.get(score,[]) + [m]
+    scores[score] = mins
 
-    return m, results    
+    if len(mins) >= 3:
+        a,b,c = mins[-3:]
+        if (b-a) == (c-b):
+            repeat_interval = b-a
+            remaining_mins = minutes-m
+            m = minutes - (remaining_mins % repeat_interval)
+            scores = dict()
+
+    return m+1, scores    
     
      
 def main(filepath):
