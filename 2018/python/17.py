@@ -1,13 +1,13 @@
 #  Slow, but it gets there eventually - can't immediately think of a swifter way of doing this.
 
-class Ground:
+class Grid:
 
-    def __init__(self, scan, springs): 
+    def __init__(self, scan, water_sources): 
 
-        self.clay, self.void = self.process_scan(scan)
+        self.rock, self.void = self.process_scan(scan)
         self.flow, self.settled = set(), set()
-        self.left, self.right, self.left_bounded, self.right_bounded = (), (), False, False
-        self.crests = [(yy if y < yy else y, x) for y,x in springs for yy in [min(self.clay)[0]]]
+        self.left, self.right, self.left_cascade, self.right_cascade = (), (), False, False
+        self.cascades = [(yy if y < yy else y, x) for y,x in water_sources for yy in [min(self.rock)[0]]]
 
 
     def process_scan(self, scan):
@@ -15,22 +15,22 @@ class Ground:
         scan = open(scan).read().split('\n')
         scan = [(x[0], int(x[2:x.find(',')]), int(x[x.find(' ')+3:x.find('.')]), int(x[x.find('..')+2:])) for x in scan]
 
-        clay = set([(a if axis == 'y' else n, n if axis == 'y' else a) for axis, a, b, c in scan for n in range(b,c+1)])
+        rock = set([(a if axis == 'y' else n, n if axis == 'y' else a) for axis, a, b, c in scan for n in range(b,c+1)])
 
-        miny, maxy = min(clay)[0], max(clay)[0]+1
-        minx, maxx = min([x[::-1] for x in clay])[0]-2, max([x[::-1] for x in clay])[0]+2
+        miny, maxy = min(rock)[0], max(rock)[0]+1
+        minx, maxx = min([x[::-1] for x in rock])[0]-2, max([x[::-1] for x in rock])[0]+2
 
         boundary = [(y,minx) for y in range(miny,maxy+1)] + [(y,maxx) for y in range(miny,maxy+1)] + [(maxy,x) for x in range(minx,maxx+1)]
-        clay.update(boundary)
+        rock.update(boundary)
 
-        return clay, maxy-1
+        return rock, maxy-1
 
 
     def apply_flow(self):
 
-        while self.crests:
+        while self.cascades:
 
-            y,x = self.crests.pop(0)
+            y,x = self.cascades.pop(0)
             y,x = self.apply_vertical_flow(y,x)
 
             if y < self.void and (y+1,x) not in self.flow:
@@ -41,16 +41,16 @@ class Ground:
                     y,x = self.fill_reservoir(y,x)
                     self.apply_horizontal_flow(y,x)
 
-                if not self.left_bounded and self.left not in self.crests:
-                    self.crests.append(self.left)
+                if self.left_cascade and self.left not in self.cascades:
+                    self.cascades.append(self.left)
 
-                if not self.right_bounded and self.right not in self.crests:
-                    self.crests.append(self.right)
+                if self.right_cascade and self.right not in self.cascades:
+                    self.cascades.append(self.right)
 
 
     def apply_vertical_flow(self,y,x):
 
-        yy = min([c[0] for c in (self.clay | self.settled) if c[1] == x and c[0] > y])
+        yy = min([c[0] for c in (self.rock | self.settled) if c[1] == x and c[0] > y])
 
         vertical_flow = [(n,x) for n in range(y,yy)]
 
@@ -66,41 +66,41 @@ class Ground:
         horizontal_flow = [(y,n) for n in range(self.left[1], self.right[1]+1)]
         self.flow.update(horizontal_flow)
 
-        return True if self.left_bounded and self.right_bounded else False
+        return False if self.left_cascade or self.right_cascade else True
 
 
     def determine_bounds(self,y,x):
 
-        xx = max([c[1] for c in self.clay if c[0] == y and c[1] < x])
-        escape = [(y,n) for n in range(xx+1,x+1) if (y+1,n) not in self.clay and (y+1,n) not in self.settled][-1:]
+        xx = max([c[1] for c in self.rock if c[0] == y and c[1] < x])
+        escape = [(y,n) for n in range(xx+1,x+1) if (y+1,n) not in self.rock and (y+1,n) not in self.settled][-1:]
         
-        self.left, self.left_bounded = (escape[0], False) if escape else ((y,xx+1), True)
+        self.left, self.left_cascade = (escape[0], True) if escape else ((y,xx+1), False)
 
-        xx = min([c[1] for c in self.clay if c[0] == y and c[1] > x])
-        escape = [(y,n) for n in range(x,xx) if (y+1,n) not in self.clay and (y+1,n) not in self.settled][:1]
+        xx = min([c[1] for c in self.rock if c[0] == y and c[1] > x])
+        escape = [(y,n) for n in range(x,xx) if (y+1,n) not in self.rock and (y+1,n) not in self.settled][:1]
 
-        self.right, self.right_bounded = (escape[0], False) if escape else ((y,xx-1), True)
+        self.right, self.right_cascade = (escape[0], True) if escape else ((y,xx-1), False)
 
 
     def fill_reservoir(self,y,x):
 
-        settled_layer = [(y,n) for n in range(self.left[1], self.right[1]+1)]
+        settled_water = [(y,n) for n in range(self.left[1], self.right[1]+1)]
 
-        self.settled.update(settled_layer)
+        self.settled.update(settled_water)
         self.flow = self.flow - self.settled
 
         y -= 1
         self.determine_bounds(y,x)
 
-        if self.left_bounded and self.right_bounded:
-            return self.fill_reservoir(y,x)
-        else:
+        if self.left_cascade or self.right_cascade:
             return y,x
+        else:
+            return self.fill_reservoir(y,x)
 
 
-def main(filepath,springs):
+def main(filepath,water_sources):
 
-    x = Ground(filepath,springs)
+    x = Grid(filepath,water_sources)
     x.apply_flow()
 
     return len(list(x.flow|x.settled)), len(list(x.settled))
