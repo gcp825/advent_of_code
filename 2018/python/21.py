@@ -5,7 +5,7 @@ def read_input(filepath):
 
     input = [(x[0],*tuple(map(int,x[1:]))) for x in [x.split(' ') for x in open(filepath).read().split('\n')]]
 
-    return input[0][1], input[1:], len(input)-2
+    return input[1:], input[0][1], len(input)-2
 
 
 def operations():
@@ -30,26 +30,25 @@ def operations():
     }
 
 
-def run(filepath,part):
+def run(filepath, part):
 
-    pointer, register, ops, seen = (0, [0]*6, operations(), [])
-
-    bound_register, instructions, max_idx = read_input(filepath)
+    pointer, register, seen, instructions, bound_register, max_idx = (0, [0]*6, [], *read_input(filepath))
+    constants = (instructions, bound_register, operations())
 
     while pointer <= max_idx:
 
-        pointer, register, exit_value = apply_instructions(instructions,pointer,register,bound_register,ops)
+        pointer, register, exit_value = apply_instructions(pointer, register, *constants)
 
         if exit_value:
 
-            if exit_value in seen: break
-            seen += [exit_value]
+            if register[4] in seen: break
+            seen += [register[4]]
             if part == 1: break
 
     return seen[-1]
 
 
-def apply_instructions(instructions,pointer,register,bound_register,ops):
+def apply_instructions(pointer, register, instructions, bound_register, ops):
 
     instr,a,b,c = instructions[pointer]
     operation = ops[instr]
@@ -58,7 +57,7 @@ def apply_instructions(instructions,pointer,register,bound_register,ops):
     register = operation(register,a,b,c)
     pointer = register[bound_register] + 1
 
-    return pointer, register, register[4] if instr == 'eqrr' else False
+    return pointer, register, True if instr == 'eqrr' else False
 
 
 
