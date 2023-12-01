@@ -1,27 +1,23 @@
-# Clunky, inefficient starter for 2023!
+# Clunky, inefficient starter for 2023. But more sensible than the braindead first attempt that got me the stars!
 
-def insert_numbers(document):
+def extract_number(line, allow_text=False):
 
-    numbers = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine']
-    updated_doc = []
+    numbers = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'] + list('0123456789')
+    extracted = []
 
-    for item in document:
-        line = item
-        for i in range(len(line)-1,-1,-1):
-            for n, nbr in enumerate(numbers):
-                if line[i:i+len(nbr)] == nbr:
-                    line = line[:i+len(nbr)] + str(n) + line[i+len(nbr):]
-                    break
-        updated_doc += [line]
+    for i in range(len(line)):
+        for number, search_string in enumerate(numbers):
+            if line[i:].startswith(search_string):
+                if search_string.isnumeric() or allow_text:
+                    extracted += [str(number%10)]
+                break
     
-    return updated_doc
+    return int(extracted[0]+extracted[-1])
 
-def main(filepath, part2=False):
+def main(filepath):
 
     file = open(filepath).read().split('\n')
-    document = insert_numbers(file) if part2 else file
-    numbers = [[x for x in y if x.isnumeric()] for y in [list(z) for z in document]]
 
-    return sum([int(x[0]+x[-1]) for x in numbers])
+    return sum([extract_number(x) for x in file]), sum([extract_number(x, True) for x in file])
 
-print(main('01.txt'), main('01.txt', True))
+print(main('01.txt'))
