@@ -1,23 +1,13 @@
-# Clunky, inefficient starter for 2023. But more sensible than the braindead first attempt that got me the stars!
+# Something a bit different: List comprehensions to convert the numbers to words, then all words back to numbers
 
-def extract_number(line, allow_text=False):
+def main(allow_text, filepath='01.txt'):
 
-    numbers = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'] + list('0123456789')
-    extracted = []
+    int_to_word = dict([(str(k),v) for k,v in enumerate(['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'])])
+    word_to_int = dict([x[::-1] for x in int_to_word.items()])
 
-    for i in range(len(line)):
-        for number, search_string in enumerate(numbers):
-            if line[i:].startswith(search_string):
-                if search_string.isnumeric() or allow_text:
-                    extracted += [str(number%10)]
-                break
-    
-    return int(extracted[0]+extracted[-1])
+    words = [''.join([int_to_word.get(x, x if allow_text else '') for x in line]) for line in open(filepath).read().split('\n')]
+    numbers = [[word_to_int[line[i:i+n]] for i in range(len(line)) for n in range(3,6) if line[i:i+n] in word_to_int] for line in words]
 
-def main(filepath):
+    return sum([int(x[0]+x[-1]) for x in numbers])
 
-    file = open(filepath).read().split('\n')
-
-    return sum([extract_number(x) for x in file]), sum([extract_number(x, True) for x in file])
-
-print(main('01.txt'))
+print(main(False), main(True))
