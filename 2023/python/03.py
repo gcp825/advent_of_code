@@ -45,7 +45,7 @@ def get_symbols(grid,y,x1,x2,max_y,max_x):
 
 def main(filepath):
 
-    grid = [x for x in open(filepath).read().split('\n')]
+    grid = open(filepath).read().split('\n')
     parts, gears = get_parts_and_gears(grid)
 
     return sum(parts), sum([g[0]*g[1] for g in gears])
