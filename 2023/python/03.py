@@ -13,7 +13,7 @@ def get_parts_and_gears(grid):
             if not grid[y][x].isdigit(): x += 1
             else:
                 x, coords = get_number_coords(grid,y,x,max_x)
-                adjacent_symbols = get_symbols(grid,*coords,(max_y,max_x))
+                adjacent_symbols = get_symbols(grid,*coords,max_y,max_x)
 
                 if adjacent_symbols:
                     parts += [int(grid[coords[0]][coords[1]:coords[2]+1])]
@@ -36,9 +36,9 @@ def adjacent_coords(y,x1,x2):
     return [(yy,xx) for yy in range(y-1,y+2) for xx in range(x1-1,x2+2) if (yy,xx) not in [(y,x) for x in range(x1,x2+1)]]
 
 
-def get_symbols(grid,y,x1,x2,bounds):
+def get_symbols(grid,y,x1,x2,max_y,max_x):
 
-    coords = [(yy,xx) for yy,xx in adjacent_coords(y,x1,x2) if 0 <= yy <= bounds[0] and 0 <= xx <= bounds[1]]
+    coords = [(yy,xx) for yy,xx in adjacent_coords(y,x1,x2) if 0 <= yy <= max_y and 0 <= xx <= max_x]
     
     return [(s,c) for s,c in [(grid[yy][xx], (yy,xx)) for yy,xx in coords] if s != '.' and not s.isdigit()]
 
