@@ -43,25 +43,25 @@ def get_destination(src, mapping):
 
 def sample_seeds(seed_ranges, maps, sample_size):
 
-    sample_seeds = []
+    samples = []
     stride = calculate_sample_stride(seed_ranges, sample_size)
 
     for start,values in seed_ranges:
-        sample_seeds += list(range(start, start + values, stride)) + [start + values - 1]
+        samples += list(range(start, start + values, stride)) + [start + values - 1]
 
-    print(f"Sampling {len(sample_seeds)} seed values to establish upper search boundary")
+    print(f"Sampling {len(samples)} seed values to establish upper search boundary")
 
-    return find_location(sample_seeds, maps)
+    return find_location(samples, maps)
 
 
 def sample_locations(upper_bound, seed_ranges, maps, sample_size):
 
     stride = calculate_sample_stride(upper_bound, sample_size)
-    sample_locations = list(range(0, upper_bound + 1, stride))
+    samples = list(range(0, upper_bound + 1, stride))
 
-    print(f"Sampling {len(sample_locations)} location values to establish lower search boundary")
+    print(f"Sampling {len(samples)} location values to establish lower search boundary")
 
-    for location in sample_locations:
+    for location in samples:
         if valid_seed(location, seed_ranges, maps): break
 
     lower_bound = max(0,location - 10**6)  # Set lower bound at 1 million below the first valid sample location
@@ -75,7 +75,7 @@ def valid_seed(location, seed_ranges, maps):
     for mapping in maps:
         sequence += [get_source(sequence[-1], mapping)]
         
-    valid = [1 for start, values in seed_ranges if start <= sequence[-1] <= start + values - 1]
+    valid = [1 for start, values in seed_ranges if start <= sequence[-1] <= (start + values - 1)]
 
     return True if valid else False
 
