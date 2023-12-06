@@ -49,7 +49,7 @@ def sample_seeds(seed_ranges, maps, sample_size):
     for start,values in seed_ranges:
         samples += list(range(start, start + values, stride)) + [start + values - 1]
 
-    print(f"Sampling {len(samples)} seed values to establish upper search boundary")
+    print(f"Sampling {len(samples)} seed values to establish initial upper search boundary")
 
     return find_location(samples, maps)
 
@@ -59,14 +59,14 @@ def sample_locations(upper_bound, seed_ranges, maps, sample_size):
     stride = calculate_sample_stride(upper_bound, sample_size)
     samples = list(range(0, upper_bound + 1, stride))
 
-    print(f"Sampling {len(samples)} location values to establish lower search boundary")
+    print(f"Sampling {len(samples)} location values to establish final search boundaries")
 
     for location in samples:
         if valid_seed(location, seed_ranges, maps): break
 
     lower_bound = max(0,location - 10**6)  # Set lower bound at 1 million below the first valid sample location
 
-    return lower_bound
+    return lower_bound, location
 
 
 def valid_seed(location, seed_ranges, maps):
@@ -104,9 +104,9 @@ def main(filepath, approx_sample_size=100000):
     part_1 = find_location(seeds, maps)
 
     upper_bound = sample_seeds(seed_ranges, maps, approx_sample_size)
-    lower_bound = sample_locations(upper_bound, seed_ranges, maps[::-1], approx_sample_size)
+    bounds = sample_locations(upper_bound, seed_ranges, maps[::-1], approx_sample_size)
 
-    part_2 = find_location_between_bounds(lower_bound, upper_bound, seed_ranges, maps[::-1])
+    part_2 = find_location_between_bounds(*bounds, seed_ranges, maps[::-1])
 
     return part_1, part_2
 
