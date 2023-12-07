@@ -9,12 +9,9 @@ def parse_input(filepath,jokers=False):
 
 def calculate_winnings(hands):
 
+    ranking = lambda x: (type_rank(x), card_order_rank(x))
+
     return sum([(i+1)*b for i,(_,b) in enumerate(sorted([(ranking(cards),bid) for cards, bid in hands]))])
-
-
-def ranking(cards):
-
-    return (type_rank(cards), card_order_rank(cards))
 
 
 def type_rank(cards):
