@@ -25,7 +25,7 @@ def type_rank(cards):
 
 def card_order_rank(cards):
 
-    ranks = dict(zip(list('023456789TJQKA'),range(14)))
+    ranks = dict([x[::-1] for x in enumerate('023456789TJQKA')])
 
     return tuple([ranks[card] for card in cards])
 
