@@ -2,7 +2,7 @@ from collections import Counter
 
 def parse_input(filepath,jokers=False):
 
-    swap = lambda x: x.replace('J','0') if jokers else x
+    swap = lambda x: x.replace('J','*') if jokers else x
 
     return [(h,int(b)) for h,b in [x.split(' ') for x in swap(open(filepath).read()).split('\n')]]
 
@@ -17,15 +17,15 @@ def calculate_winnings(hands):
 def type_rank(cards):
 
     counts = Counter(cards)
-    regular_cards = [x[::-1] for x in sorted([(n,c) for c,n in counts.items() if c != '0'])[::-1]]
-    jokers_applied = [(c,n + counts.get('0',0)) for c,n in regular_cards[:1]] + regular_cards[1:] if regular_cards else [('0',5)]
+    regular_cards = [x[::-1] for x in sorted([(n,c) for c,n in counts.items() if c != '*'])[::-1]]
+    jokers_applied = [(c,n + counts.get('*',0)) for c,n in regular_cards[:1]] + regular_cards[1:] if regular_cards else [('*',5)]
 
     return ''.join([str(n) for _,n in jokers_applied])
 
 
 def card_order_rank(cards):
 
-    ranks = dict([x[::-1] for x in enumerate('023456789TJQKA')])
+    ranks = dict([x[::-1] for x in enumerate('*23456789TJQKA')])
 
     return tuple([ranks[card] for card in cards])
 
