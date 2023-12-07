@@ -20,7 +20,7 @@ def type_rank(cards):
     regular_cards = [x[::-1] for x in sorted([(n,c) for c,n in counts.items() if c != '0'])[::-1]]
     jokers_applied = [(c,n + counts.get('0',0)) for c,n in regular_cards[:1]] + regular_cards[1:] if regular_cards else [('0',5)]
 
-    return ''.join([str(x[1]) for x in jokers_applied])
+    return ''.join([str(n) for _,n in jokers_applied])
 
 
 def card_order_rank(cards):
