@@ -1,10 +1,26 @@
-#  This feels like a bit of a mess. Thats probably partly because I chose a list structure rather than a dict - I've
-#  had random performance issues using dicts for this type of puzzle before; partly because of all the corresponding
-#  coordinates; partly because there are probably slicker ways to expand and flood the grid, and partly due to how I
-#  chose to represent the pipes
+#  This feels like a bit of a mess. There's a bunch of reasons for that:
 #
-#  Feels like a grid class would really help to tidy this up no end - when I get a chance, I'll refactor this... but
-#  right now, this will have to stay as the initial version that got the stars.
+#  - I overcomplicated Part 1 by traversing the loop in both directions until both trails met rather than just circling
+#    the loop and then dividing by 2.
+#
+#  - I chose a list structure rather than a dict - I've had random performance issues using dicts for this type of puzzle
+#    before - but you end up enumerating within list comprehensions all over the place to derive the (y,x) coordinates
+#
+#  - Multiple sets of coordinates (i.e. current and previous) always gets messy
+#
+#  - I'm pre-cleaning the grid of junk pipe; but it might be cleaner to do this once I've traversed the pipe - as any pipe
+#    I didn't visit must be junk and can just be removed in en masse. It might not even be necessary at all.
+#
+#  - The grid expand and flood fill feel clunky; there are probably slicker ways of doing these
+# 
+#  When I get a chance, I'll refactor this to...
+#
+#  - Simplify Part 1
+#  - Rework or remove the junk cleansing
+#  - Switch to a dictionary, and assuming performance holds up use 0.5 step increments to expand the map instead
+#  - Create a grid class if it still looks a bit messy after those changes
+#
+#  ... but right now, this will have to stay as the initial version that got the stars.
 
 def prepare_grid(filepath):
 
