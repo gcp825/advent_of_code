@@ -9,8 +9,7 @@
 def prepare_grid(filepath):
 
     repl = dict(zip(('|','-','L','J','7','F'), ('ns','we','ne','nw','sw','se')))
-    orig = [[repl.get(x,x) for x in list(y)] for y in open(filepath).read().split('\n')]
-    grid = [] + orig
+    grid = [[repl.get(x,x) for x in list(y)] for y in open(filepath).read().split('\n')]
 
     rules = (len(grid)-1, len(grid[0])-1, dict(zip('nswe','snew')))
     y,x   = [(y,x) for y in range(len(grid)) for x in range(len(grid[0])) if grid[y][x] == 'S'][0]
