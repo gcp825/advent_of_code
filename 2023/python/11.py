@@ -1,7 +1,7 @@
 #  Wrote the right solution first time around - i.e. didn't even consider trying to expand the grid.
 #  The only thing I had to refactor was determining the pairs of galaxies - I originally used a list
-#  comprehension that joined the list of galaxies to itself, and that was slooow. I like a list
-#  comprehension, but sometimes they encourage bad habits!
+#  comprehension that joined the grid to itself, and that was slooow. I like a list comprehension, 
+#  but sometimes they encourage bad habits!
 
 class Grid:
 
@@ -39,8 +39,8 @@ def manhattan(grid,a,b,expansion_factor):
     ay, ax = a; by, bx = b
 
     distance = (abs(by-ay) + abs(bx-ax) + 
-               (len([y for y in grid.empty_y if min(ay,by) <= y <= max(ay,by)]) * (expansion_factor-1)) +
-               (len([x for x in grid.empty_x if min(ax,bx) <= x <= max(ax,bx)]) * (expansion_factor-1)))
+                sum([expansion_factor-1 for y in grid.empty_y if min(ay,by) <= y <= max(ay,by)]) +
+                sum([expansion_factor-1 for x in grid.empty_x if min(ax,bx) <= x <= max(ax,bx)]))
 
     return distance
 
