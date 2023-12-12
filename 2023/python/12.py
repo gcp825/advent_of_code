@@ -31,7 +31,7 @@ def permutations(row,pattern):
             while queue:
                 idx, current_grp_length = queue.pop(0)
                 if idx < len(row):
-                    for move in ["#","."] if row[idx] == '?' else [row[idx]]:
+                    for move in ['#','.'] if row[idx] == '?' else [row[idx]]:
 
                         if (move == '.' and current_grp_length == target_grp_length
                         and (not final_group or (final_group and '#' not in row[idx+1:]))):
