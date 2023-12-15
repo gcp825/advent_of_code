@@ -8,7 +8,7 @@ def hash(string, v=0):
 def hashmap(input):
 
     instructions = [(a,int(b)) for a,b in [tuple(x.replace('-','=0').split('=')) for x in input]]
-    boxes = [dict().copy() for _ in range(256)]
+    boxes = [{} for _ in range(256)]
 
     for lens, focal_length in instructions:
 
