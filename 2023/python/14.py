@@ -27,45 +27,36 @@ def load(platform):
     return sum([row.count('O') * load for row,load in zip(platform,range(len(platform),0,-1))])
 
 
-def cycle(platform, cycles=10**9, sample_size=200):
+def cycle(platform, target_cycle=10**9):
 
-    loads = []
+    interval, current_cycle, sequences = (0,1,{})
+    loads = [load(platform)]
 
-    # Take a small sample of consecutive load values
+    # Store load values & count repeating instances of groups of 5 consecutive load values.
+    # When a group has repeated twice or more, break if the interval between the last two repeats is identical.
 
-    for _ in range(sample_size):
-        for d in 'nwse':
-            platform = tilt(platform,d)
+    while not interval:
+
+        for d in 'nwse': platform = tilt(platform,d)
+
         loads += [load(platform)]
+        repeats = sequences.get(tuple(loads[-5:]),[]) + [current_cycle]
 
-    # Get the minimum load value from the sample + find the max load value that appears after that
+        if len(repeats) >= 3 and repeats[-1]-repeats[-2] == repeats[-2]-repeats[-3]:
+            interval = repeats[-1]-repeats[-2]
+        else:
+            sequences[tuple(loads[-5:])] = repeats
+            current_cycle += 1
 
-    cutoff = loads.index(min(loads))+1
-    hi = max(loads[cutoff:])
+    # Use the determined interval to calculate the offset between the current load value
+    # and the value that will correspond to the target cycle
 
-    # Get the minimum load value that appears after the max load value found above
-
-    cutoff = [n+1 for n,v in enumerate(loads) if v == hi and n > cutoff][0]
-    lo = min(loads[cutoff:])
-
-    # Determine the interval between repeat instances of the min load value found above
-
-    low_indices = [n for n,v in enumerate(loads) if v == lo and n > cutoff]
-    interval = low_indices[-1] - low_indices[-2]
-
-    # Align current cycle with last known low value
-
-    current_cycle = low_indices[-1] + 1
-
-    # Using the known interval between repeated instances of the low value, determine the cycle immediately before
-    # the target cycle that has this load value. From this, calculate the offset of this cycle to the target cycle.
-
-    number_of_intervals = (cycles - current_cycle) // interval
-    offset = cycles - current_cycle - (interval * number_of_intervals)
+    number_of_intervals = (target_cycle - current_cycle) // interval
+    offset = target_cycle - current_cycle - (interval * number_of_intervals)
     
-    # Using the offset, return the target value from the sample of load values
+    # Using the offset, return the target value from the stored load values
 
-    return loads[low_indices[-2] + offset]
+    return loads[current_cycle - interval + offset]
 
 
 def main(filepath):
