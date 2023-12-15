@@ -16,16 +16,16 @@ def hashmap(input):
 
         if focal_length:
             boxes[i][lens] = focal_length
-        else:
-            if lens in boxes[i]:
-                boxes[i].pop(lens)
 
-    return boxes
+        elif lens in boxes[i]:
+            boxes[i].pop(lens)
+
+    return [(i,slot+1,length) for i,b in enumerate(boxes) for slot,length in enumerate(b.values())]
 
 
 def focusing_power(boxes):
 
-    return sum([(box+1)*(slot+1)*length for box, b in enumerate(boxes) for slot, length in enumerate(b.values())])
+    return sum([(box+1)*slot*length for box, slot, length in boxes])
 
 
 def main(filepath):
