@@ -19,15 +19,14 @@ def move(grid,next_directions,adjust,y,x,direction):
 
 def energised(grid,rules,origin):
 
-    max_y, max_x = len(grid)-1, len(grid[0])-1
+    yy, xx = len(grid)-1, len(grid[0])-1
     seen_states = set()
     queue = [origin]
 
     while queue:
         state = queue.pop(0)
         seen_states.add(state)
-        queue += [(y,x,d) for y,x,d in move(grid,*rules,*state) if  0 <= y <= max_y 
-                                                                and 0 <= x <= max_x and (y,x,d) not in seen_states]
+        queue += [m for m in move(grid,*rules,*state) if 0 <= m[0] <= yy and 0 <= m[1] <= xx and m not in seen_states]
 
     return len(list(set([(y,x) for y,x,_ in seen_states])))
 
