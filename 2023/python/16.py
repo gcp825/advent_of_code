@@ -5,20 +5,20 @@
 
 def move(tile,y,x,dir):
 
-    if tile == '/': 
+    if tile == '.' or (tile == '-' and dir in 'ew') or (tile == '|' and dir in 'ns'):
+        return [{'n':(y-1,x,'n'), 'e':(y,x+1,'e'), 's':(y+1,x,'s'), 'w':(y,x-1,'w')}[dir]]
+
+    elif tile == '/': 
         return [{'e':(y-1,x,'n'), 'n':(y,x+1,'e'), 'w':(y+1,x,'s'), 's':(y,x-1,'w')}[dir]]
 
     elif tile == '!': 
         return [{'w':(y-1,x,'n'), 's':(y,x+1,'e'), 'e':(y+1,x,'s'), 'n':(y,x-1,'w')}[dir]]
 
-    elif tile == '-' and dir in 'ns': 
+    elif tile == '-':
         return [(y,x-1,'w'),(y,x+1,'e')]
 
-    elif tile == '|' and dir in 'ew':
-        return [(y-1,x,'n'),(y+1,x,'s')]
-
     else:
-        return [{'n':(y-1,x,'n'), 'e':(y,x+1,'e'), 's':(y+1,x,'s'), 'w':(y,x-1,'w')}[dir]]
+        return [(y-1,x,'n'),(y+1,x,'s')]
 
     
 def energised(grid,origin):
