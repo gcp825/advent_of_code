@@ -1,6 +1,6 @@
-# This code feels like a disaster zone, though from all the different possibilities in the puzzle and even the horrendous input
-# horrendous input format, it's difficult to see how it can ever be really clean. Some more granular functions would likely help,
-# though they might feel a little bit artificial.
+# This code feels like a disaster zone, though from all the different possibilities in the puzzle and even the
+# horrendous input format, it's difficult to see how it can ever be really clean. Some more granular functions 
+# would likely help, though they might feel a little bit artificial.
 
 def parse_input(filepath):
 
