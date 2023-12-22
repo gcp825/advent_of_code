@@ -2,10 +2,10 @@ def parse_input(filepath):
 
     bricks = [tuple(map(int,x.split(','))) for x in open(filepath).read().replace('~',',').split('\n')]
 
-    return [brick for _,_,brick in sorted([(b[2],b[5],b) for b in bricks])]
+    return [brick for _, _, brick in sorted([(b[2],b[5],b) for b in bricks])]
 
 
-def resting_on(cubes,stack):
+def resting_on(cubes, stack):
 
     below = [(x,y,z-1) for x,y,z in cubes]
     supported = [stack[b] for b in below if b in stack and b not in cubes]
