@@ -19,9 +19,9 @@ def shoelace_and_pick(polygon):
     Direction values are 0,1,2,3 - corresponding to N,E,S,W (or U,R,D,L)
     '''
 
-    def get_next_vertex(cy,cx,d,m):
+    def get_next_vertex(y,x,direction,length):
 
-        return [(cy-m,cx),(cy,cx+m),(cy+m,cx),(cy,cx-m)][d]
+        return [(y-length,x),(y,x+length),(y+length,x),(y,x-length)][direction]
 
 
     def positive_shift(coords):
@@ -36,8 +36,8 @@ def shoelace_and_pick(polygon):
 
         vertices = [(0,0)]
 
-        for direction, metres in instructions:
-            vertices += [get_next_vertex(*vertices[-1], direction, metres)]
+        for direction, length in instructions:
+            vertices += [get_next_vertex(*vertices[-1], direction, length)]
 
         return positive_shift(vertices[1:])
 
