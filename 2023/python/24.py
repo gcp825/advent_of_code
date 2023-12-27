@@ -14,7 +14,7 @@ class Stone:
         #  y = mx + b (where m is the gradient and b is the value where the line intercepts the y axis).
 
         #  Thus we can also represent the line by the 3 constants in that equation i.e. for two points on the line...
-        #  y = mx + b  >>  y = ((diff_in_y_axis / diff_in_x_axis) * x) + (y_axis_intercept)  >>  (diff_y, diff_x, intercept)
+        #  y = mx + b  >>  y = ((diff_in_y_axis / diff_in_x_axis) * x) + y_axis_intercept  >>  (diff_y, diff_x, intercept)
 
         #  Velocity is movement between 2 points on the line over time, so we already have the diff (gradient) values.
         #  To calculate the intercept, we simply rearrange the line equation  >>  b = y - mx
@@ -95,7 +95,7 @@ class Intersection:
 
 def parse_input(filepath):
 
-    return [tuple(map(int,x.split(','))) for x in open(filepath).read().replace('@',',').replace(' ','').split('\n')]
+    return [tuple(map(int,x.split(','))) for x in open(filepath).read().replace('@',',').split('\n')]
 
 
 def main(filepath,window=(2*10**14,4*10**14)):
