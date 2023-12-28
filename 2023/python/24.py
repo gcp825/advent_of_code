@@ -11,7 +11,7 @@
 #  It does however return the right answer in impressively quick time when you can get it working!
 
 #  On a related note, there's a bit of an anti-solver vibe on the megathread for this puzzle which I don't quite get. 
-#  Nobody is complaining about the use of networkx to solve Day 23, yet that makes Part 2 of that puzzle even more 
+#  Nobody is complaining about the use of networkx to solve Day 25, yet that makes Part 2 of that puzzle even more 
 #  trivial than z3 does here. Nobody complains about the use of itertools, but pretty much everything in that library 
 #  can easily be implemented with your own bespoke code... which nobody does unless explictly trying to avoid imports
 #  for their own AoC challenge. So, what makes one convenience package acceptable and another not? Plus this puzzle
