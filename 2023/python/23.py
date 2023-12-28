@@ -100,7 +100,6 @@ def link_nodes(edges):
 def calculate_longest_bfs(path, slopes):
 
     start = min(path);  finish = max(path);  longest = 0
-
     queue = [(start, set(), 0)]
 
     while queue:
@@ -124,15 +123,13 @@ def calculate_longest_dfs(path, slopes, avoid_uphill):
     distances = dict([(termini, len(visited)-1) for termini, visited in edges])
 
     start = min(path);  target = max(path);  longest = 0
-    
     stack = [(start, set([start]), 0)]
 
     while stack:
 
         previous, visited, steps = stack.pop(-1)
 
-        for node in [x for x in links[previous] if x not in visited]:
-            
+        for node in [n for n in links[previous] if n not in visited]: 
             if node == target:
                 longest = max(steps + distances[(previous,node)], longest)
             else:
