@@ -17,14 +17,13 @@ def moves(y,x,slopes,avoid_uphill):
     return [c for c,d in possible if c not in slopes or not avoid_uphill or d == slopes[c]]
 
 
-def shrink_grid(path,slopes):
+def shrink_grid(path,slopes,avoid_uphill):
 
-    nodes = determine_nodes(path,slopes,False)
-    edges = determine_edges(nodes,path,slopes,False)
-    crossings = determine_edge_overlaps(edges)
+    nodes = determine_nodes(path,slopes,avoid_uphill)
+    edges = collapse_edges(determine_edges(nodes,path,slopes,avoid_uphill))
     links = link_nodes(edges)
 
-    return edges, crossings, links
+    return edges, links
 
 
 def determine_nodes(path,slopes,avoid_uphill):
@@ -34,7 +33,7 @@ def determine_nodes(path,slopes,avoid_uphill):
     return [min(path), max(path)] + nodes
 
 
-def determine_edges(nodes,path,slopes,avoid_uphill):
+def determine_edges(nodes, path, slopes, avoid_uphill):
 
     edges = [];  unmapped = [] + nodes
 
@@ -54,21 +53,39 @@ def determine_edges(nodes,path,slopes,avoid_uphill):
                 next_moves = [c for c in moves(*current,slopes,avoid_uphill) if c in path and c not in visited]
                 for coords in next_moves:
                     queue += [[] + visited + [coords]]
-        
+
     return edges
 
 
-def determine_edge_overlaps(edges):
+def collapse_edges(edges):
 
-    overlaps = {}
-    for i,(termini, path) in enumerate(edges):
-        for t,p in edges[i+1:]:
-            matches = set(path[1:-1]).intersection(p[1:-1])
-            if matches:
-                overlaps[termini] = overlaps.get(termini,[]) + [t]
-                overlaps[t] = overlaps.get(t,[]) + [termini]
+    retained_edges = [];  updated_edges = [];  collapse = [];  consecutive = 1;  i = 1
 
-    return overlaps
+    while i <= len(edges):
+        if ((i < len(edges) and edges[i][0][0] == edges[i-1][0][0])
+        or (i == len(edges) and edges[i-1][0][0] == edges[i-2][0][0])
+        or consecutive > 1):
+            consecutive = 1 if i == len(edges) or edges[i][0][0] != edges[i-1][0][0] else consecutive + 1
+            retained_edges += [edges[i-1]]
+        else:
+            consecutive = 1
+            if i > 0:  collapse += [edges[i-1]]
+        i += 1
+
+    for (a,b), trail in collapse:
+        updated_edges = []
+        for (c,d), path in retained_edges:
+            if b == c:
+                if a != d:
+                    updated_edges += [((a,d),trail[:-1]+path)]
+            elif b == d:
+                if c != a:
+                    updated_edges += [((c,a),path+trail[:-1][::-1])]
+            else:
+                updated_edges += [((c,d),path)]
+        retained_edges = updated_edges
+
+    return retained_edges
 
 
 def link_nodes(edges):
@@ -84,11 +101,11 @@ def calculate_longest_bfs(path, slopes):
 
     start = min(path);  finish = max(path);  longest = 0
 
-    queue = [(0, start, set())]
+    queue = [(start, set(), 0)]
 
     while queue:
 
-        steps, current, visited = queue.pop(0)
+        current, visited, steps = queue.pop(0)
 
         if current == finish:
             longest = max(len(list(visited)),longest)
@@ -96,34 +113,30 @@ def calculate_longest_bfs(path, slopes):
             steps += 1
             options = [c for c in moves(*current,slopes,True) if c in path and c not in visited]
             for coords in options:
-                queue += [(steps, coords, visited.union([coords]))]
+                queue += [(coords, visited.union([coords]), steps)]
 
     return longest
 
 
-def calculate_longest_dfs(path,slopes):
+def calculate_longest_dfs(path, slopes, avoid_uphill):
 
-    edges, crossings, links = shrink_grid(path,slopes)
-    steps = dict([(termini,len(visited)-1) for termini, visited in edges])
+    edges, links = shrink_grid(path, slopes, avoid_uphill)
+    distances = dict([(termini, len(visited)-1) for termini, visited in edges])
 
     start = min(path);  target = max(path);  longest = 0
     
-    stack = [(start, set([start]), set())]
+    stack = [(start, set([start]), 0)]
 
     while stack:
 
-        previous, visited, traversed = stack.pop(-1)
+        previous, visited, steps = stack.pop(-1)
 
         for node in [x for x in links[previous] if x not in visited]:
             
             if node == target:
-                traversed.add((previous,node))
-                longest = max(sum([steps[edge] for edge in traversed]), longest)
+                longest = max(steps + distances[(previous,node)], longest)
             else:
-                if node not in visited:
-                    overlaps = [edge for edge in crossings[(previous,node)] if edge in traversed]
-                    if not overlaps:
-                        stack += [(node, visited.union([node]), traversed.union([(previous,node)]))]
+                stack += [(node, visited.union([node]), steps + distances[(previous,node)])]
 
     return longest
 
@@ -132,7 +145,7 @@ def main(filepath):
 
     path, slopes = parse_input(filepath)
 
-    return calculate_longest_bfs(path,slopes), calculate_longest_dfs(path,slopes)
+    return calculate_longest_bfs(path,slopes), calculate_longest_dfs(path,slopes,False)
 
 
 print(main('23.txt'))
