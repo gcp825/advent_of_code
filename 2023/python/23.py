@@ -23,8 +23,9 @@ def shrink_grid(path,slopes):
     nodes = determine_nodes(path,slopes)
     edges, uphill = collapse_edges(*determine_edges(nodes,path,slopes))
     links = link_nodes(edges)
+    distances = dict([(termini, len(visited)-1) for termini, visited in edges])
 
-    return edges, uphill, links
+    return links, distances, uphill
 
 
 def determine_nodes(path,slopes):
@@ -104,12 +105,9 @@ def link_nodes(edges):
     return links
 
 
-def calculate_longest_path(path,slopes):
+def calculate_longest_path(links, distances, uphill):
 
-    edges, uphill, links = shrink_grid(path, slopes)
-    distances = dict([(termini, len(visited)-1) for termini, visited in edges])
-
-    start = min(path);  target = max(path);  longest_downhill, longest = (0,0)
+    start = min(links);  target = max(links);  longest_downhill, longest = (0,0)
     stack = [(start, set([start]), 0, False)]
 
     while stack:
@@ -130,8 +128,8 @@ def calculate_longest_path(path,slopes):
  
 def main(filepath):
 
-    path, slopes = parse_input(filepath)
-    longest_downhill, longest = calculate_longest_path(path,slopes)
+    grid = shrink_grid(*parse_input(filepath))
+    longest_downhill, longest = calculate_longest_path(*grid)
 
     return longest_downhill, longest
 
