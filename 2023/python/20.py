@@ -1,5 +1,8 @@
-#  For Part 2 used an online Graphviz implementation to visualise the network and then manually solved using
-#  a circuit mod counter approach. Part 2 here is an automated implementation of that manual solve.
+#  For Part 2 used an online Graphviz implementation to visualise the network. In code, have implemented Part 2
+#  as two different solutions:
+# 
+#  2a) Determine the cycle for each circuit by observing the state of the flip-flops upstream of the conjunction
+#  2b) Determine the cycle for each circuit by analysing the circuit "diagrammatically" with a mod counter approach
 
 def parse_input(filepath):
 
@@ -19,16 +22,20 @@ def parse_input(filepath):
     return downstream, upstream, modtype, state
 
 
-def press_button(modules, presses, counts=[0,0]):
+def press_button(modules, criteria, counts=[0,0]):
+
+    p, presses = (0, criteria) if type(criteria) is int else (0, 99**99)
+    monitored_modules = criteria if type(criteria) in (list,tuple,set) else []
+    early_exit = False
 
     downstream, upstream, modtype, state = (d.copy() for d in modules)
 
-    for _ in range(presses):
+    while p < presses and not early_exit:
 
         counts[0] += 1
         queue = [(mod,0) for mod in downstream["broadcaster"]]
 
-        while queue:
+        while queue and not early_exit:
 
             mod, pulse = queue.pop(0)
 
@@ -43,9 +50,14 @@ def press_button(modules, presses, counts=[0,0]):
                 if mod in downstream:
                     queue += [(target,state[mod]) for target in downstream[mod]]
 
-            counts[pulse] += 1
+                if monitored_modules:
+                    if all([state[mod] for mod in monitored_modules]):
+                        early_exit = True
 
-    return counts[0]*counts[1]
+            counts[pulse] += 1
+        p += 1
+    
+    return p if monitored_modules else counts[0]*counts[1]
 
 
 def lcm(numbers):
@@ -59,6 +71,20 @@ def lcm(numbers):
     return nums[0]
 
 
+def observe_states(modules):
+
+    downstream, upstream, modtype, _ = modules
+    queue = ['broadcaster'];  conjunctions = []
+
+    while not conjunctions:
+        queue = [m for mod in queue for m in downstream[mod]]
+        conjunctions = [m for m in queue if modtype[m] == '&']
+
+    cycles = [press_button(modules,m) for m in [upstream[module] for module in conjunctions]]
+
+    return lcm(cycles) 
+
+
 def analyse_circuit_diagram(downstream,upstream,modtype,_):
 
     queue = ['broadcaster'];  conjunctions = [];  cycles = [];  previous = ''
@@ -69,12 +95,12 @@ def analyse_circuit_diagram(downstream,upstream,modtype,_):
 
     for module in conjunctions:
 
-        circuit  = list(set(downstream[module]).intersection(upstream[module]))[:1]
+        circuit = [m for m in downstream[module] if m in upstream[module]][:1]
 
         while len(circuit) == 1 or circuit[-1] != previous:
 
             previous = circuit[-1]
-            next_modules = downstream[circuit[-1]]
+            next_modules = downstream[previous]
 
             if len(next_modules) > 1:
                 circuit += [m for m in next_modules if m != module]
@@ -82,8 +108,10 @@ def analyse_circuit_diagram(downstream,upstream,modtype,_):
                 circuit += next_modules
             else: break
 
-        binary_cycle = ''.join([str(len([x for x in upstream[m] if len(x) == 2])%2) for m in circuit[::-1]])
-        cycles += [int(binary_cycle,2)]
+        circuit = circuit[::-1]
+        bin_cycle = ''.join(['0' if len([m for m in upstream[mod] if m != 'broadcaster']) == 2 else '1' for mod in circuit])
+
+        cycles += [int(bin_cycle,2)]
 
     return lcm(cycles)
 
@@ -91,8 +119,13 @@ def analyse_circuit_diagram(downstream,upstream,modtype,_):
 def main(filepath):
 
     modules = parse_input(filepath)
+    part_1  = press_button(modules,1000)
+    part_2a = observe_states(modules)
+    part_2b = analyse_circuit_diagram(*modules)
 
-    return press_button(modules,1000), analyse_circuit_diagram(*modules)
+    assert part_2a == part_2b
+
+    return part_1, part_2a
 
 
 print(main('20.txt'))
