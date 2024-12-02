@@ -5,7 +5,7 @@ def ordered(report):
 
 def within_limits(report):
 
-    diffs = [abs(report[i]-report[i-1]) for i in range(1,len(report))]
+    diffs = [abs(b-a) for a,b in zip(report[:-1], report[1:])]
 
     return True if min(diffs) >= 1 and max(diffs) <= 3 else False
 
