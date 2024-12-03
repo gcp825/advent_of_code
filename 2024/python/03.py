@@ -9,10 +9,9 @@ def calculate(text):
     for i in range(len(text)+1):
         if text[i:i+4] == "mul(":
             contents = text[i+4:].split(")")[0]
-            if 3 <= len(contents) <= 7:
-                left, right = tuple(contents.split(",") + [""])[:2]
-                if len(left) <= 3 and len(right) <= 3 and left.isdigit() and right.isdigit():
-                    total += int(left)*int(right)
+            left, right = tuple(contents.split(",") + [""])[:2]
+            if len(left) <= 3 and len(right) <= 3 and left.isdigit() and right.isdigit():
+                total += int(left)*int(right)
     return total
 
 def main(filepath):
