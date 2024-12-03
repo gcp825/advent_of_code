@@ -1,16 +1,16 @@
 # I have changed: I am no longer allergic to regex. I still don't like it... but it's definitely the easy option here.
 
-import re
+from ast import literal_eval
+from re import findall
 
 def parse(data, conditionals):
 
-    execute, ignore = ("do()", "don't()") if conditionals else (chr(0), chr(0))
-    alternates = "|do\(\)|don't\(\)" if conditionals else ""
+    do, do_not, extension = ("do()", "don't()", "|do\(\)|don't\(\)") if conditionals else (chr(0), chr(0), "")
 
-    matches = "".join(re.findall("mul\([0-9]{1,3},[0-9]{1,3}\)" + alternates, data))
-    pairs = [p for p in "".join([m.split(ignore)[0] for m in matches.split(execute)]).split("mul") if p]
+    matches = "".join(findall("mul\([0-9]{1,3},[0-9]{1,3}\)" + extension, data))
+    pairs = [literal_eval(p) for p in "".join([m.split(do_not)[0] for m in matches.split(do)]).split("mul") if p]
 
-    return sum(a*b for a,b in [tuple(map(int, x[1:-1].split(','))) for x in pairs])
+    return sum(a*b for a,b in pairs)
 
 
 def main(filepath):
