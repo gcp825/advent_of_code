@@ -18,8 +18,8 @@ def calculate(text):
 def main(filepath):
 
     data = [line.split("don't()") for line in open(filepath).read().split("do()")]
-    keep = calculate(''.join(x[0] for x in data))
-    lose = calculate(''.join(''.join(x[1:]) for x in data))
+    keep = calculate("".join(x[0] for x in data))
+    lose = calculate("".join("".join(x[1:]) for x in data))
 
     return keep+lose, keep
 
