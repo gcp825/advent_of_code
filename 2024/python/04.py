@@ -2,9 +2,9 @@
 
 def rotate_45(grid):
 
-    starts = [(y,0) for y in range(len(grid))] + [(len(grid)-1,x) for x in range(1,len(grid[0]))]
+    row_starts = [(y,0) for y in range(len(grid))] + [(len(grid)-1,x) for x in range(1,len(grid[0]))]
 
-    return [''.join([grid[y][x] for y,x in zip(range(r,-1,-1),range(c,len(grid[0])))]) for r,c in starts]
+    return [''.join([grid[y][x] for y,x in zip(range(r,-1,-1),range(c,len(grid[0])))]) for r,c in row_starts]
 
 
 def rotate_90(grid):
