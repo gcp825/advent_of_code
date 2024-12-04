@@ -1,74 +1,39 @@
-# This is some ugly code. And my approach to Part 1 really didn't help for Part 2 at all!
+# Much cleaner implementation than what I first wrote this morning; need to stop doing this whilst still asleep!
 
-def rotate(grid, degrees):
+def rotate_45(grid):
 
-    def _rotate_45(grid):
+    starts = [(y,0) for y in range(len(grid))] + [(len(grid)-1,x) for x in range(1,len(grid[0]))]
 
-        new_grid = []
-
-        for start in range(len(grid)):
-            new_row, y = ('', start)
-            for x in range(start+1):
-                new_row += grid[y][x]
-                y -= 1
-            new_grid += [new_row]
-
-        for start in range(1,len(grid[0])):
-            new_row, y = ('', len(grid)-1)
-            for x in range(start, len(grid[0])):
-                new_row += grid[y][x]
-                y -= 1
-            new_grid += [new_row]
-
-        return new_grid
-
-    def _rotate_90(grid):
-
-        return [] + [''.join([row[i] for row in grid][::-1]) for i in range(len(grid[0]))]
+    return [''.join([grid[y][x] for y,x in zip(range(r,-1,-1),range(c,len(grid[0])))]) for r,c in starts]
 
 
-    if degrees % 45 != 0:
-        raise ValueError("Degrees must be divisible by 45")
-    else:
-        new_grid = [] + grid
-        for _ in range(degrees//90):
-            new_grid = _rotate_90(new_grid)
-        if degrees % 90 != 0:
-            new_grid = _rotate_45(new_grid)
+def rotate_90(grid):
 
-    return new_grid
+    return [''.join([row[i] for row in grid][::-1]) for i in range(len(grid[0]))]
 
 
-def search(grid,search_term):
+def regular_search(grid, search_term='XMAS'):
 
-    count = 0
-    for degrees in range(0,360,45):
-        search_grid = rotate(grid,degrees)
-        for line in search_grid:
-            count += line.count(search_term)
-
-    return count
+    return sum(line.count(search_term) for line in grid)
 
 
-def x_mas_search(grid):
+def xmas_search(grid):
 
-    count = 0
-    for degrees in range(0,360,90):
-        search_grid = rotate(grid,degrees)
-        for y,line in enumerate(search_grid[1:-1]):
-            for x,char in enumerate(line[1:-1]):
-                if char == 'A':
-                    above = search_grid[y][x:x+3:2]
-                    below = search_grid[y+2][x:x+3:2]
-                    if above == 'MS' and below == 'MS':
-                        count += 1
-    return count
+    return sum(1 for y,line in enumerate(grid[1:-1]) for x,char in enumerate(line[1:-1])
+               if char == 'A' and grid[y][x:x+3:2] + grid[y+2][x:x+3:2] == 'MSMS')
 
 
 def main(filepath):
 
     grid = open(filepath).read().split('\n')
+    pt1, pt2 = (0,0)
 
-    return search(grid,'XMAS'), x_mas_search(grid)
+    for _ in range(4):
+        pt1 += regular_search(grid) + regular_search(rotate_45(grid))
+        pt2 += xmas_search(grid)
+        grid = rotate_90(grid)
+
+    return pt1, pt2
+
 
 print(main('04.txt'))
