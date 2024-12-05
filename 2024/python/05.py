@@ -18,8 +18,8 @@ def main(filepath):
     rules = set(tuple(map(int,r.split('|'))) for r in input[0])
     updates = [tuple(map(int,u.split(','))) for u in input[1]]
 
-    correct = sum(u[len(u)//2] for u in [u for u in updates if ordered(u,rules)])
-    corrected = sum(u[len(u)//2] for u in [order(u,rules) for u in updates if not ordered(u,rules)])
+    correct = sum(x[len(x)//2] for x in [u for u in updates if ordered(u,rules)])
+    corrected = sum(x[len(x)//2] for x in [order(u,rules) for u in updates if not ordered(u,rules)])
 
     return correct, corrected
 
