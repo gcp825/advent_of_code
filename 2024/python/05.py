@@ -9,7 +9,7 @@ def order(update, rules):
 
     counts = Counter(list(update) + [p for p in update for x,y in rules if p == x and y in update])
 
-    return tuple(k for _,k in sorted((v,k) for k,v in counts.items()))
+    return tuple(k for _,k in sorted((v,k) for k,v in counts.items())[::-1])
 
 
 def main(filepath):
