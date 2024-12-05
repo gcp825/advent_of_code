@@ -26,9 +26,9 @@ def xmas_search(grids):
                   if char == 'A' and grid[y][x:x+3:2] + grid[y+2][x:x+3:2] == 'MSMS')
 
 
-def main(f):
+def main(filepath):
 
-    grids = list(sum([(g, rotate_45(g)) for g in [rotate_90(open(f).read().split('\n'), i) for i in range(4)]],()))
+    grids = sum([[g, rotate_45(g)] for g in [rotate_90(open(filepath).read().split('\n'), i) for i in range(4)]],[])
 
     return regular_search(grids), xmas_search(grids[::2])
 
