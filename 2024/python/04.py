@@ -17,12 +17,12 @@ def rotate_90(grid,iterations=1):
 
 def regular_search(grids, search_term='XMAS'):
 
-    return sum(line.count(search_term) for grid in grids for line in grid)
+    return sum(row.count(search_term) for grid in grids for row in grid)
 
 
 def xmas_search(grids):
 
-    return sum(1 for grid in grids for y,line in enumerate(grid[1:-1]) for x,char in enumerate(line[1:-1])
+    return sum(1 for grid in grids for y,row in enumerate(grid[1:-1]) for x,char in enumerate(row[1:-1])
                   if char == 'A' and grid[y][x:x+3:2] + grid[y+2][x:x+3:2] == 'MSMS')
 
 
