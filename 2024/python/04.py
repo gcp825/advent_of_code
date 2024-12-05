@@ -1,4 +1,4 @@
-# Much cleaner implementation than what I first wrote this morning; need to stop doing this whilst still asleep!
+# There's always one puzzle each year where I use list comprehensions for everything (even when I shouldn't) just for practice...
 
 def rotate_45(grid):
 
@@ -7,33 +7,30 @@ def rotate_45(grid):
     return [''.join([grid[y][x] for y,x in zip(range(r,-1,-1),range(c,len(grid[0])))]) for r,c in row_starts]
 
 
-def rotate_90(grid):
+def rotate_90(grid,iterations=1):
 
-    return [''.join([row[i] for row in grid][::-1]) for i in range(len(grid[0]))]
+    for i in range(iterations):
+        grid = [] + [''.join([row[i] for row in grid][::-1]) for i in range(len(grid[0]))]
 
-
-def regular_search(grid, search_term='XMAS'):
-
-    return sum(line.count(search_term) for line in grid)
+    return grid
 
 
-def xmas_search(grid):
+def regular_search(grids, search_term='XMAS'):
 
-    return sum(1 for y,line in enumerate(grid[1:-1]) for x,char in enumerate(line[1:-1])
-               if char == 'A' and grid[y][x:x+3:2] + grid[y+2][x:x+3:2] == 'MSMS')
+    return sum(line.count(search_term) for grid in grids for line in grid)
 
 
-def main(filepath):
+def xmas_search(grids):
 
-    grid = open(filepath).read().split('\n')
-    pt1, pt2 = (0,0)
+    return sum(1 for grid in grids for y,line in enumerate(grid[1:-1]) for x,char in enumerate(line[1:-1])
+                  if char == 'A' and grid[y][x:x+3:2] + grid[y+2][x:x+3:2] == 'MSMS')
 
-    for _ in range(4):
-        pt1 += regular_search(grid) + regular_search(rotate_45(grid))
-        pt2 += xmas_search(grid)
-        grid = rotate_90(grid)
 
-    return pt1, pt2
+def main(f):
+
+    grids = list(sum([(g, rotate_45(g)) for g in [rotate_90(open(f).read().split('\n'), i) for i in range(4)]],()))
+
+    return regular_search(grids), xmas_search(grids[::2])
 
 
 print(main('04.txt'))
