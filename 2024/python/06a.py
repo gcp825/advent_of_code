@@ -1,7 +1,10 @@
 #  A bit slow for Part 2 (~25 seconds on my laptop) but not egregiously bad given that my AoC metric for
 #  'Is it fast enough?' is 'does it complete in the time it takes for me to make a cup of tea?'.
-#  It's already set based, so not much more tuning I can do: unless I'm missing a trick, I can't see how
-#  to bring this down significantly without starting to cache previosuly travelled paths etc.
+#  It's already set based, so not much more tuning I can do. Might try rewriting the coordinate update
+#  to remove the dictionary lookup perhaps? But unless I'm missing a trick can't see how to bring this
+#  down significantly.
+
+from time import time
 
 def parse_grid(filepath):
 
@@ -27,7 +30,12 @@ def map_route(locations, start, obstacles, insert_obstacle=()):
         else:
             route.add((location, facing))
 
-        y,x = (location[0] + compass[facing][0], location[1] + compass[facing][1])
+        y,x = location
+
+        if facing == '<':   x += -1
+        elif facing == '>': x += 1
+        elif facing == '^': y += -1
+        elif facing == 'v': y += 1
 
         if (y,x) in obstacles:
             facing = turn[facing]
@@ -52,7 +60,10 @@ def main(filepath):
 
     locations, start, obstacles = parse_grid(filepath)
     visited = map_route(locations, start, obstacles)
+    a = time()
     loops = count_loops(locations, start, obstacles, visited)
+    b = time()
+    print(b-a)
 
     return len(visited), loops
 
