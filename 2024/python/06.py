@@ -1,7 +1,6 @@
-#  A bit slow for Part 2 (~25 seconds on my laptop) but not egregiously bad given that my AoC metric for
-#  'Is it fast enough?' is 'does it complete in the time it takes for me to make a cup of tea?'.
-#  It's already set based, so not much more tuning I can do: unless I'm missing a trick, I can't see how
-#  to bring this down significantly without starting to cache previosuly travelled paths etc.
+#  Tuned this down to ~16 seconds on my weak old laptop. For something doing this amount of work every choice
+#  e.g. object types, whether to use ifs or dictionary/set lookups, whether to use a comprehension has noticeable
+#  difference to the runtime.
 
 def parse_grid(filepath):
 
@@ -9,50 +8,38 @@ def parse_grid(filepath):
     obstacles = {k for k,v in grid if v == '#'}
     start = [(k,v) for k,v in grid if v in '<>^v'][0]
 
-    return {x[0] for x in grid}, start, obstacles
+    return obstacles, start, max(grid)[0]
 
 
-def map_route(locations, start, obstacles, insert_obstacle=()):
+def map_route(obstacles, current_location, facing, bounds, part_1=False):
 
-    compass, turn = {'^':(-1,0),'v':(1,0),'<':(0,-1),'>':(0,1)}, {'^':'>', '>':'v', 'v':'<', '<':'^'}
-
-    obstacles = set([insert_obstacle] + [x for x in obstacles]) if insert_obstacle else {x for x in obstacles}
     route = set()
-    location, facing = start
+    max_y, max_x = bounds
+    turn = {'^':'>', '>':'v', 'v':'<', '<':'^'}
 
-    while location in locations:
+    while (0 <= current_location[0] <= max_y) and (0 <= current_location[1] <= max_y):
 
-        if (location, facing) in route:
-            break
+        if (current_location, facing) in route:
+            return 1
         else:
-            route.add((location, facing))
+            route.add((current_location, facing))
 
-        y,x = (location[0] + compass[facing][0], location[1] + compass[facing][1])
+        y = current_location[0] + (1 if facing == 'v' else -1 if facing == '^' else 0)
+        x = current_location[1] + (1 if facing == '>' else -1 if facing == '<' else 0)
 
         if (y,x) in obstacles:
             facing = turn[facing]
         else:
-            location = (y,x)
+            current_location = (y,x)
 
-    return [] if (location, facing) in route else list({x[0] for x in route})
-
-
-def count_loops(locations, start, obstacles, visited):
-
-    loops = 0
-    for i, location in enumerate(visited):
-        exit_route = map_route(locations, start, obstacles, location)
-        if not exit_route:
-            loops += 1
-
-    return loops
+    return {x[0] for x in route} if part_1 else 0
 
 
 def main(filepath):
 
-    locations, start, obstacles = parse_grid(filepath)
-    visited = map_route(locations, start, obstacles)
-    loops = count_loops(locations, start, obstacles, visited)
+    obstacles, start, bounds = parse_grid(filepath)
+    visited = map_route(obstacles, *start, bounds, True)
+    loops = sum(map_route(obstacles|{location}, *start, bounds) for location in visited)
 
     return len(visited), loops
 
