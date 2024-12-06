@@ -1,6 +1,6 @@
 #  Tuned this down to ~16 seconds on my weak old laptop. For something doing this amount of work every choice
-#  e.g. object types, whether to use ifs or dictionary/set lookups, whether to use a comprehension has noticeable
-#  difference to the runtime.
+#  e.g. object types, whether to use ifs or dictionary/set lookups, whether to use a comprehension etc makes a
+#  noticeable difference to the runtime.
 
 def parse_grid(filepath):
 
@@ -17,7 +17,7 @@ def map_route(obstacles, current_location, facing, bounds, part_1=False):
     max_y, max_x = bounds
     turn = {'^':'>', '>':'v', 'v':'<', '<':'^'}
 
-    while (0 <= current_location[0] <= max_y) and (0 <= current_location[1] <= max_y):
+    while (0 <= current_location[0] <= max_y) and (0 <= current_location[1] <= max_x):
 
         if (current_location, facing) in route:
             return 1
