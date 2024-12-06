@@ -14,10 +14,9 @@ def parse_grid(filepath):
 def map_route(obstacles, current_location, facing, bounds, part_1=False):
 
     route = set()
-    max_y, max_x = bounds
     turn = {'^':'>', '>':'v', 'v':'<', '<':'^'}
 
-    while (0 <= current_location[0] <= max_y) and (0 <= current_location[1] <= max_x):
+    while (0 <= current_location[0] <= bounds[0]) and (0 <= current_location[1] <= bounds[1]):
 
         if (current_location, facing) in route:
             return 1
