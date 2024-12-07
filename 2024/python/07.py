@@ -16,7 +16,7 @@ def solve(equations, part, tally=0):
         totals = [start]
 
         for n in terms:
-            totals = [t for t in [op(t,n) for t in totals for op in operations] if t <= expected_result]
+            totals = [op(t,n) for t in totals for op in operations if t <= expected_result]
 
         if expected_result in totals:
             tally += expected_result
