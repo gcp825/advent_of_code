@@ -1,4 +1,4 @@
-def parse_grid(filepath):
+def parse_input(filepath):
 
     grid = [((y,x),val) for y,row in enumerate(open(filepath).read().split('\n')) for x,val in enumerate(row)]
 
@@ -17,7 +17,7 @@ def count_antinodes(antennas, bounds, repeat):
 
 def main(filepath):
 
-    grid = parse_grid(filepath)
+    grid = parse_input(filepath)
 
     return tuple(count_antinodes(*grid, repeat) for repeat in (False, True))
 
