@@ -1,6 +1,7 @@
-#  Tuned this down to ~16 seconds on my weak old laptop. For something doing this amount of work every choice
+#  Tuned this down to ~9 seconds on my weak old laptop. For something doing this amount of work every choice
 #  e.g. object types, whether to use ifs or dictionary/set lookups, whether to use a comprehension etc makes a
-#  noticeable difference to the runtime.
+#  noticeable difference to the runtime. Only starting the route mapping for Part 2 immediately before the
+#  obstruction shaved about 8 seconds off the run time.
 
 def parse_grid(filepath):
 
@@ -13,7 +14,7 @@ def parse_grid(filepath):
 
 def map_route(obstacles, current_location, facing, bounds, part_1=False):
 
-    route = set()
+    visit, route = ([],[]) if part_1 else ([],set())
     turn = {'^':'>', '>':'v', 'v':'<', '<':'^'}
 
     while (0 <= current_location[0] <= bounds[0]) and (0 <= current_location[1] <= bounds[1]):
@@ -21,7 +22,11 @@ def map_route(obstacles, current_location, facing, bounds, part_1=False):
         if (current_location, facing) in route:
             return 1
         else:
-            route.add((current_location, facing))
+            if part_1:
+                visit.append(sum(route.count(x) for x in [(current_location,f) for f in '<>^v'])+1)
+                route.append((current_location, facing))
+            else:
+                route.add((current_location, facing))
 
         y = current_location[0] + (1 if facing == 'v' else -1 if facing == '^' else 0)
         x = current_location[1] + (1 if facing == '>' else -1 if facing == '<' else 0)
@@ -31,15 +36,18 @@ def map_route(obstacles, current_location, facing, bounds, part_1=False):
         else:
             current_location = (y,x)
 
-    return {x[0] for x in route} if part_1 else 0
+    return (route, visit) if part_1 else 0
 
 
 def main(filepath):
 
     obstacles, start, bounds = parse_grid(filepath)
-    visited = map_route(obstacles, *start, bounds, True)
-    loops = sum(map_route(obstacles|{location}, *start, bounds) for location in visited)
+    route, visit = map_route(obstacles, *start, bounds, True)
 
-    return len(visited), loops
+    obstructions = [(o,s) for o,s,v in zip([x[0] for x in route][1:], route, visit[1:]) if v == 1]
+    loops = sum(map_route(obstacles|{obstruction}, *start, bounds) for obstruction, start in obstructions)
+
+    return len({x[0] for x in route}), loops
+
 
 print(main('06.txt'))
