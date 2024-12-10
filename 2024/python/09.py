@@ -1,58 +1,83 @@
-#  This is the horrific naive code I used to get the stars, with no optimisations. It is ugly and comically slow
-#  - so much so that it's hard to imagine it being any worse! I simply haven't had a chance to improve this today, so
-#  this is it for now: the first one this year that is going to get improved, possibly in 2025, when this is over!
+#  The somewhat tuned version of the code. It still takes 8 seconds on my pathetic laptop, but that's a significant
+#  improvement on what it was. Two distinct loops for the different move/fill space approaches definitely cleaner
+#  than one loop full of various if conditions depending on what mode you are running under.
 
-def get_candidate(diskmap, space, file_mode):
+def move_blocks(new_diskmap, diskmap, space, i, moved_files=0):
 
-    if not file_mode:
-        return -1
-    else:
-        candidate = [i for i,(id,b) in [(n,x) for n,x in enumerate(diskmap)][::-1] if id > 0 and b <= space][:1]
-        return candidate[0] if candidate else None
+    while True:
 
+        if i < 0 or space == 0: break
 
-def calc_checksum(element, checksum, pos):
-
-    checksum += sum(max(i*x,0) for x,y in [element] for i in range(pos, pos+y))
-
-    return checksum, pos + element[1]
-
-
-def rearrange(diskmap, file_mode):
-
-    checksum, pos = (0,0)
-
-    while diskmap:
-        id, length = diskmap.pop(0)
-        if id < 0:
-            space = length
-            while space and diskmap:
-                idx = get_candidate(diskmap, space, file_mode)
-                if idx is not None:
-                    id, length = diskmap.pop(idx)
-                    if id > 0:
-                        blocks = min(length,space)
-                        checksum, pos = calc_checksum((id, blocks), checksum, pos)
-                        if file_mode:
-                            diskmap.insert(idx,(-1,length))
-                        if not file_mode and length > space:
-                            diskmap += [(id, length-space)]
-                        space -= blocks
-                else:
-                    if file_mode:
-                        checksum, pos = calc_checksum((-1, space), checksum, pos)
-                    space = 0
+        if diskmap[i][0] < 0:
+            i -= 1
         else:
-            checksum, pos = calc_checksum((id, length), checksum, pos)
+            id, length = diskmap.pop(i)
+            if length > space:
+                diskmap.insert(i,(id,length-space))
+                new_diskmap += [(id,space)]
+                space = 0
+            else:
+                new_diskmap += [(id,length)]
+                space -= length
+                moved_files += 1
+                i -= 1
 
-    return checksum
+    return new_diskmap, moved_files, diskmap
+
+
+def move_files(new_diskmap, diskmap, space, i, moved_files=0):
+
+    while True:
+
+        if i < 0:
+            new_diskmap += [(-1,space)]
+            space = 0
+
+        if space == 0: break
+
+        if diskmap[i][0] < 0 or diskmap[i][1] > space:
+            i -= 1
+        else:
+            id, length = diskmap.pop(i)
+            new_diskmap += [(id,length)]
+            diskmap.insert(i,(-1,length))
+            space -= length
+            moved_files += 1
+            i -= 1
+
+    return new_diskmap, moved_files, diskmap
+
+
+def checksum(diskmap):
+
+    return sum(max(id,0)*i for i,id in enumerate(sum([[x[0]]*x[1] for x in diskmap],[])))
+
+
+def rearrange(diskmap, move_whole_files):
+
+    diskmap, new_diskmap = [] + diskmap, []
+    move = move_files if move_whole_files else move_blocks
+    processed, total_files = 0, sum(1 for x in diskmap if x[0] >= 0)
+
+    while processed < total_files:
+
+        id, length = diskmap.pop(0)
+
+        if id >= 0:
+            new_diskmap += [(id,length)]
+            processed += 1
+        else:
+            new_diskmap, moved, diskmap = move(new_diskmap, diskmap, length, len(diskmap)-1)
+            processed += moved
+
+    return checksum(new_diskmap)
 
 
 def main(filepath):
 
-    diskmap = [(i//2 if i%2 == 0 else -1, int(blocks)) for i,blocks in enumerate(open(filepath).read())]
+    files = [(i//2 if i%2 == 0 else -1, int(length)) for i,length in enumerate(open(filepath).read())]
 
-    return rearrange([]+diskmap, False), rearrange([]+diskmap, True)
+    return rearrange(files, False), rearrange(files, True)
 
 
 print(main('09.txt'))
