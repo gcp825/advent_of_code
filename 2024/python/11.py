@@ -1,34 +1,43 @@
+#  Some minor refactoring to use better names, only do one pass, and perform the number split mathematically,
+#  thus removing the need for any string manipulation.
+
 from collections import defaultdict
+from math import floor, log10
 
 def blink(stones,cycles):
 
-    for _ in range(cycles):
+    results = []
 
-        current = stones.items()
-        stones = defaultdict(int)
+    for cycle in range(1, max(cycles)+1):
 
-        for stone, count in current:
+        new_stones = defaultdict(int)
 
-            if stone == '0':
-                stones['1'] += count
+        for stone_number, quantity in stones.items():
 
-            elif len(stone)%2 == 0:
-                stones[stone[:len(stone)//2]] += count
-                stones[str(int(stone[len(stone)//2:]))] += count
-
+            if stone_number == 0:
+                new_stones[1] += quantity
             else:
-                stones[str(int(stone)*2024)] += count
+                digits = floor(log10(stone_number))+1
+                if digits % 2 == 0:
+                    new_stones[stone_number // 10**(digits//2)] += quantity
+                    new_stones[stone_number % 10**(digits//2)]  += quantity
+                else:
+                    new_stones[stone_number * 2024] += quantity
 
-    return sum(stones.values())
+        stones = new_stones
+        if cycle in cycles:
+            results += [sum(stones.values())]
+
+    return tuple(results)
 
 
 def main(filepath):
 
     stones = defaultdict(int)
-    for stone in [x for x in open(filepath).read().split()]:
-        stones[stone] += 1
+    for stone_number in [int(x) for x in open(filepath).read().split()]:
+        stones[stone_number] += 1
 
-    return tuple(blink(stones,n) for n in (25,75))
+    return blink(stones,(25,75))
 
 
 print(main('11.txt'))
