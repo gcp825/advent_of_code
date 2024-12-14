@@ -1,21 +1,21 @@
 import re
 
-def simulate(robots, seconds, width, height):
+def simulate(robots, seconds, w, h):
 
-    return [(vy, vy, (y+(vy*seconds)) % height, (x+(vx*seconds)) % width) for vy,vx,y,x in robots]
+    return [(vy, vy, (y+(vy*seconds)) % h, (x+(vx*seconds)) % w) for vy,vx,y,x in robots]
 
 
-def calculate_safety_factor(robots, width, height):
+def calculate_safety_factor(robots, w, h):
 
-    q1 = sum(1 for _,_,y,x in robots if 0 <= y < height//2 and 0 <= x < width//2)
-    q2 = sum(1 for _,_,y,x in robots if 0 <= y < height//2 and width//2 + width%2 <= x < width)
-    q3 = sum(1 for _,_,y,x in robots if height//2 + height%2 <= y < height and 0 <= x < width//2)
-    q4 = sum(1 for _,_,y,x in robots if height//2 + height%2 <= y < height and width//2 + width%2 <= x < width)
+    q1 = sum(1 for _,_,y,x in robots if 0 <= y < h//2 and 0 <= x < w//2)
+    q2 = sum(1 for _,_,y,x in robots if 0 <= y < h//2 and w//2 + w%2 <= x < w)
+    q3 = sum(1 for _,_,y,x in robots if h//2 + h%2 <= y < h and 0 <= x < w//2)
+    q4 = sum(1 for _,_,y,x in robots if h//2 + h%2 <= y < h and w//2 + w%2 <= x < w)
 
     return q1*q2*q3*q4
 
 
-def easter_egg_hunt(robots,w,h):
+def easter_egg_hunt(robots, w, h):
     ''' Counts robots in the centre portion of the grid and returns the seconds value with the highest robot count'''
 
     distinct_states = w*h
