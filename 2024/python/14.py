@@ -15,20 +15,6 @@ def calculate_safety_factor(robots, w, h):
     return q1*q2*q3*q4
 
 
-def easter_egg_hunt(robots, w, h):
-    ''' Counts robots in the centre portion of the grid and returns the seconds value with the highest robot count'''
-
-    distinct_states = w*h
-    best_so_far = (0, -1)
-
-    for seconds in range(1, distinct_states):
-        score = sum(1 for r in simulate(robots, seconds, w, h) if h//4 <= r[2] <= (h//4)*3 and w//4 <= r[3] <= (w//4)*3)
-        if score > best_so_far[0]:
-            best_so_far = (score, seconds)
-
-    return best_so_far[1]
-
-
 def render(robots):
 
     coords = [r[2:] for r in robots]
@@ -43,13 +29,19 @@ def render(robots):
 def main(filepath, w=101, h=103):
 
     robots = [tuple(map(int,re.findall('-?\d+',line)))[::-1] for line in open(filepath).read().split('\n')]
+    lowest = float("inf")
 
-    safety_factor = calculate_safety_factor(simulate(robots,100,w,h),w,h)
+    for seconds in range(w*h):
+        safety_factor = calculate_safety_factor(simulate(robots,seconds,w,h),w,h)
+        if seconds == 100:
+            part_1 = safety_factor
+        if safety_factor < lowest:
+            lowest = safety_factor
+            part_2 = seconds
 
-    seconds = easter_egg_hunt(robots,w,h)
-    render(simulate(robots,seconds,w,h))
+    render(simulate(robots,part_2,w,h))
 
-    return safety_factor, seconds
+    return part_1, part_2
 
 
 print(main('14.txt'))
