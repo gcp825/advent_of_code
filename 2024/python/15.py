@@ -4,7 +4,7 @@
 
 def parse_input(filepath, box_width):
 
-    raw_grid, moves = [(expand_grid(g,box_width), m) for g,m in [tuple(open(filepath).read().split('\n\n'))]][0]
+    raw_grid, moves = [(expand_grid(g, box_width), m) for g,m in [tuple(open(filepath).read().split('\n\n'))]][0]
     grid = [((y,x),col) for y,row in enumerate(raw_grid.split('\n')) for x,col in enumerate(row)]
 
     box_locations = [tuple([(y,ax) for ax in range(x, x+box_width)]) for (y,x),c in grid if c =='O']
