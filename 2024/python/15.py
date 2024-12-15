@@ -7,11 +7,8 @@ def parse_input(filepath, box_width):
     raw_grid, moves = [(expand_grid(g,box_width), m) for g,m in [tuple(open(filepath).read().split('\n\n'))]][0]
     grid = [((y,x),col) for y,row in enumerate(raw_grid.split('\n')) for x,col in enumerate(row)]
 
-    boxes = {}
     box_locations = [tuple([(y,ax) for ax in range(x, x+box_width)]) for (y,x),c in grid if c =='O']
-    for box in box_locations:
-        for location in box:
-            boxes[location] = box
+    boxes = dict((location, box) for box in box_locations for location in box)
 
     wall = {a for a,b in grid if b =='#'}
     location = [a for a,b in grid if b =='@'][0]
