@@ -1,14 +1,16 @@
 #  Probably not the most intuitive, understandable code I'll ever write!
 #  The boxes dictionary/map is a form of linked list where a single coordinate forming part of a box is associated
 #  with a list containing all of the coordinates for that same box.
+#  Also the solution *should* work for any size of box/expansion you want to throw at it (within reason) - though
+#  I haven't actually tested that!
 
 def parse_input(filepath, box_width):
 
     raw_grid, moves = [(expand_grid(g, box_width), m) for g,m in [tuple(open(filepath).read().split('\n\n'))]][0]
     grid = [((y,x),col) for y,row in enumerate(raw_grid.split('\n')) for x,col in enumerate(row)]
 
-    box_locations = [tuple([(y,ax) for ax in range(x, x+box_width)]) for (y,x),c in grid if c =='O']
-    boxes = dict((location, box) for box in box_locations for location in box)
+    box_positions = [tuple([(y,ax) for ax in range(x, x+box_width)]) for (y,x),c in grid if c =='O']
+    boxes = dict((location, box) for box in box_positions for location in box)
 
     wall = {a for a,b in grid if b =='#'}
     location = [a for a,b in grid if b =='@'][0]
@@ -32,21 +34,21 @@ def get_moveable_boxes(boxes, wall, location, y, x):
 
     while locations:
 
-        current_position = boxes[locations.pop(0)]
-        new_position = tuple([(cy+y, cx+x) for cy,cx in current_position])
+        current_box_position = boxes[locations.pop(0)]
+        new_box_position = tuple([(cy+y, cx+x) for cy,cx in current_box_position])
 
-        if sum(1 for loc in new_position if loc in wall) > 0: return []
+        if sum(1 for loc in new_box_position if loc in wall) > 0: return []
         else:
-            moves += [(current_position, new_position)]
-            adjacent_boxes = list({boxes[loc] for loc in new_position if loc in boxes and loc not in current_position})
-            if len(adjacent_boxes) > 0:
+            moves += [(current_box_position, new_box_position)]
+            adjacent_boxes = list({boxes[loc] for loc in new_box_position if loc in boxes and loc not in current_box_position})
+            if adjacent_boxes:
                 if y == 0:
                     locations += [adjacent_boxes[0][min(x,0)]]
                 else:
-                    if len(adjacent_boxes) == 1 and new_position == adjacent_boxes[0]:
-                        locations += [new_position[0]]
+                    if len(adjacent_boxes) == 1 and new_box_position == adjacent_boxes[0]:
+                        locations += [new_box_position[0]]
                     else:
-                        locations += [location for location in new_position if location in boxes]
+                        locations += [location for location in new_box_position if location in boxes]
 
     return list(set(moves))
 
