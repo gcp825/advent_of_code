@@ -1,4 +1,9 @@
-from heapq import heapify, heappush, heappop
+#  Went for the easy option on part 2 by just including the entire trail so far within the item on the priority
+#  queue - allowing me to easily dump it into the set of best locations at the end. It would be more efficient to
+#  keep a record of all of the cheapest point-to-point moves and reverse engineer the best locations from that, but
+#  this is fast enough for my liking, so sticking with keeping it simple.
+
+from heapq import heappush, heappop
 
 def parse_input(filepath):
 
@@ -22,7 +27,7 @@ def get_moves(y, x, d, wall):
 def dijkstra(wall, origin, target):
 
     seen = {(*origin, 1) : 0}
-    queue = [(0, *origin, 1, [origin])];  heapify(queue)
+    queue = [(0, *origin, 1, [origin])]
     lowest_total_cost = float('inf')
 
     while queue:
