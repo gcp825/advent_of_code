@@ -19,12 +19,11 @@ def get_moves(y, x, d, wall):
     return moves
 
 
-def dijkstra(wall, origin, target, target_cost=0):
-
-    lowest_total_cost, best_locations = float('inf'), set()
+def dijkstra(wall, origin, target):
 
     seen = {(*origin, 1) : 0}
     queue = [(0, *origin, 1, [origin])];  heapify(queue)
+    lowest_total_cost = float('inf')
 
     while queue:
 
