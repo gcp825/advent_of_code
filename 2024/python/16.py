@@ -21,8 +21,7 @@ def get_moves(y, x, d, wall):
 
 def dijkstra(wall, origin, target, target_cost=0):
 
-    best_cost, best_locations = float('inf'), set()
-    first_pass = True if not target_cost else False
+    lowest_total_cost, best_locations = float('inf'), set()
 
     seen = {(*origin, 1) : 0}
     queue = [(0, *origin, 1, [origin])];  heapify(queue)
@@ -32,20 +31,27 @@ def dijkstra(wall, origin, target, target_cost=0):
         cost, y, x, facing, trail = heappop(queue)
 
         if (y,x) == target:
-            best_cost = min(cost, best_cost)
-            if cost == target_cost:
+
+            if cost < lowest_total_cost:
+                lowest_total_cost = cost
+                best_locations = set(trail)
+
+            elif cost == lowest_total_cost:
                 best_locations.update(trail)
+
         else:
             for ny, nx, direction in get_moves(y, x, facing, wall):
 
                 new_cost = cost + 1 if direction == facing else cost + 1000
-                best_cost_so_far = seen.get((ny, nx, direction), float('inf'))
 
-                if (target_cost and new_cost <= best_cost_so_far) or (first_pass and new_cost < best_cost_so_far):
-                    seen[(ny, nx, direction)] = new_cost
-                    heappush(queue, (new_cost, ny, nx, direction, trail + [(ny,nx)]))
+                if cost <= lowest_total_cost:
+                    lowest_cost_at_this_location = seen.get((ny, nx, direction), float('inf'))
 
-    return (best_cost, len(best_locations)) if best_locations else dijkstra(wall, origin, target, best_cost)
+                    if new_cost <= lowest_cost_at_this_location:
+                        seen[(ny, nx, direction)] = new_cost
+                        heappush(queue, (new_cost, ny, nx, direction, trail + [(ny,nx)]))
+
+    return lowest_total_cost, len(best_locations)
 
 
 def main(filepath):
