@@ -7,33 +7,29 @@ def parse_input(f):
 
 def solve(towels, patterns):
 
-    viable_patterns, variations = set(), 0
     stripes = {len(towel) for towel in towels}
+    possible_patterns, total_variations = (0,0)
 
     for pattern in patterns:
 
-        queue = [(pattern,1)]
         valid_towels = [t for t in towels if t in pattern]
+        variations = 0
+        queue = [(pattern, 1)]
 
         while queue:
-
             states = defaultdict(int)
-
             while queue:
-                state, ct = queue.pop(0)
-                new_states = [state[:-n] for n in stripes if n < len(state) and state[-n:] in valid_towels]
-                for state in new_states:
-                    states[state] += ct
-
-            new_variations = sum(ct for state, ct in states.items() if state in valid_towels)
-
-            if new_variations:
-                viable_patterns.add(pattern)
-                variations += new_variations
-
+                state, occurences = queue.pop(0)
+                for new_state in [state[:-n] for n in stripes if n < len(state) and state[-n:] in valid_towels]:
+                    states[new_state] += occurences
+            variations += sum(occurences for state, occurences in states.items() if state in valid_towels)
             queue = list(states.items())
 
-    return len(viable_patterns), variations
+        if variations:
+            possible_patterns += 1
+            total_variations += variations
+
+    return possible_patterns, total_variations
 
 
 def main(filepath):
