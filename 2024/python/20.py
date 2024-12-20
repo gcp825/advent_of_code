@@ -6,13 +6,13 @@ def get_route(filepath):
 
     grid = dict(((y,x),col) for y,row in enumerate(open(filepath).read().split('\n')) for x,col in enumerate(row))
 
-    route = [()] + [loc for loc,val in grid.items() if val == 'E']
+    route = [()] + [loc for loc,val in grid.items() if val == 'S']
 
     for _ in range(sum(1 for v in grid.values() if v != '#')):
         y,x = route[-1]
         route += [c for c in [(y-1,x), (y,x+1), (y+1,x), (y,x-1)] if grid.get(c,'#') != '#' and c != route[-2]][:1]
 
-    return route[1:][::-1]
+    return route[1:]
 
 
 def count_cheats(route, part_1=0, part_2=0):
