@@ -1,7 +1,8 @@
-#  Slow. But I'll tune it some other time.
-#  Also... threw away all of my original Part 1 after falling for the "it's just another 2d grid search" con!
+#  Threw away all of my original Part 1 after falling for the "it's just another 2d grid search" con!
+#  Not superfast, but much quicker than many of other python solutions on the megathread. Probably still
+#  missing one more trick somewhere?
 
-def get_distances(filepath):
+def get_route(filepath):
 
     grid = dict(((y,x),col) for y,row in enumerate(open(filepath).read().split('\n')) for x,col in enumerate(row))
 
@@ -11,31 +12,26 @@ def get_distances(filepath):
         y,x = route[-1]
         route += [c for c in [(y-1,x), (y,x+1), (y+1,x), (y,x-1)] if grid.get(c,'#') != '#' and c != route[-2]][:1]
 
-    return [(c,i) for i,c in enumerate(route[1:])]
+    return route[1:][::-1]
 
 
-def manhattan(a,b): return sum((abs(a[0]-b[0]),abs(a[1]-b[1])))
+def count_cheats(route, part_1=0, part_2=0):
 
+    for i,(ay,ax) in enumerate(route):
+        for j,(by,bx) in enumerate(route[i+100:]):
+            shortcut = abs(ay-by) + abs(ax-bx)
+            if shortcut <= 20:
+                if j >= shortcut:
+                    part_2 += 1
+                    if shortcut == 2:
+                        part_1 += 1
 
-def count_cheats(distances, time_limit, requested_saving=100, cheats=0):
-
-    minimum_separation = requested_saving - time_limit
-
-    for a, time_from_a in distances:
-        for b, time_from_b in distances:
-            if time_from_a - time_from_b >= minimum_separation:
-                shortcut = manhattan(a,b)
-                if shortcut <= time_limit:
-                    if (time_from_a - time_from_b - shortcut) >= requested_saving:
-                        cheats += 1
-    return cheats
+    return part_1, part_2
 
 
 def main(filepath):
 
-    distances = get_distances(filepath)
-
-    return tuple(count_cheats(distances,n) for n in (2,20))
+    return count_cheats(get_route(filepath))
 
 
 print(main('20.txt'))
