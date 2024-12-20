@@ -1,3 +1,7 @@
+#  Just returns the answer for Part 1. For Part 2, having inspected some output, I manually calculated a value to
+#  jump to from which I could realistically run a bit of quick(-ish) brute force to get the exact answer.
+#  Not much point in automating that solution.
+
 import re
 
 def parse_input(filepath):
