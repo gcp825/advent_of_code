@@ -17,16 +17,16 @@ def get_distances(filepath):
 def manhattan(a,b): return sum((abs(a[0]-b[0]),abs(a[1]-b[1])))
 
 
-def count_cheats(distances, time_limit, saving=100, cheats=0):
+def count_cheats(distances, time_limit, requested_saving=100, cheats=0):
 
-    distance = saving - time_limit
+    minimum_separation = requested_saving - time_limit
 
     for a, time_from_a in distances:
         for b, time_from_b in distances:
-            if time_from_a - time_from_b >= distance:
+            if time_from_a - time_from_b >= minimum_separation:
                 shortcut = manhattan(a,b)
                 if shortcut <= time_limit:
-                    if (time_from_a - time_from_b - shortcut) >= saving:
+                    if (time_from_a - time_from_b - shortcut) >= requested_saving:
                         cheats += 1
     return cheats
 
