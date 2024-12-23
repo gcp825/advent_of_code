@@ -41,7 +41,7 @@ def count_presses(sequence, keymaps, target_depth, current_depth=0):
 
 def process_codes(codes, keymaps, robots):
 
-    return sum([count_presses(code, keymaps, robots) * int(code[:-1]) for code in codes])
+    return sum(count_presses(code, keymaps, robots) * int(code[:-1]) for code in codes)
 
 
 def main(filepath):
