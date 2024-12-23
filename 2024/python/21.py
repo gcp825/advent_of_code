@@ -5,7 +5,7 @@ from functools import cache
 
 def map_keys(keypad):
 
-    keys = dict((key,(y,x)) for y,row in enumerate((keypad)) for x,key in enumerate(row))
+    keys = {key:(y,x) for y,row in enumerate((keypad)) for x,key in enumerate(row)}
     keymap = {}
 
     for a,b in {(a,b) for a in keys for b in keys if a != '_' and b != '_'}:
