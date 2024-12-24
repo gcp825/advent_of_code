@@ -6,19 +6,19 @@ from functools import cache
 def map_keys(keypad):
 
     keys = {key:(y,x) for y,row in enumerate((keypad)) for x,key in enumerate(row)}
-    keymap = {(a,b):[] for a in keys for b in keys if '_' not in a+b}
+    keymap = {(a,b):() for a in keys for b in keys if '_' not in a+b}
 
     for a, ay, ax, b, by, bx in [(a,*keys[a],b,*keys[b]) for a,b in keymap]:
         queue, length = [(ay, ax, '')], abs(ay-by) + abs(ax-bx)
         while queue:
             y, x, path = queue.pop(0)
             if (y,x) == (by,bx) and len(path) == length:
-                keymap[(a,b)] += [path]
+                keymap[(a,b)] = (*keymap[(a,b)], path)
             else:
                 if len(path) < length and keys['_'] != (y,x):
                     queue += [(ny, nx, path + d) for ny, nx, d in [(y-1,x,'^'), (y+1,x,'v'), (y,x-1,'<'), (y,x+1,'>')]]
 
-    return tuple((k,tuple(v)) for k,v in keymap.items())
+    return tuple(keymap.items())
 
 
 @cache
