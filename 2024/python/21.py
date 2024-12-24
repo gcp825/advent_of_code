@@ -6,20 +6,19 @@ from functools import cache
 def map_keys(keypad):
 
     keys = {key:(y,x) for y,row in enumerate((keypad)) for x,key in enumerate(row)}
-    keymap = {}
+    keymap = {(a,b):[] for a in keys for b in keys if '_' not in a+b}
 
-    for a,b in {(a,b) for a in keys for b in keys if a != '_' and b != '_'}:
+    for a, ay, ax, b, by, bx in [(a,*keys[a],b,*keys[b]) for a,b in keymap]:
+        queue, length = [(ay, ax, '')], abs(ay-by) + abs(ax-bx)
+        while queue:
+            y, x, path = queue.pop(0)
+            if (y,x) == (by,bx) and len(path) == length:
+                keymap[(a,b)] += [path]
+            else:
+                if len(path) < length and keys['_'] != (y,x):
+                    queue += [(ny, nx, path + d) for ny, nx, d in [(y-1,x,'^'), (y+1,x,'v'), (y,x-1,'<'), (y,x+1,'>')]]
 
-        ay, ax, by, bx = (*keys[a], *keys[b])
-        moves = [('v' * max(by-ay,0) + '^' * max(ay-by,0)), ('>' * max(bx-ax,0) + '<' * max(ax-bx,0))]
-        seqs = [''] if a == b else moves[:1] if ax == bx else moves[1:] if ay == by else [''.join(moves), moves[1]+moves[0]]
-
-        if keys['_'] == (by,ax): seqs.pop(0)
-        if keys['_'] == (ay,bx): seqs.pop(1)
-
-        keymap[(a,b)] = tuple(seqs)
-
-    return tuple(keymap.items())
+    return tuple((k,tuple(v)) for k,v in keymap.items())
 
 
 @cache
