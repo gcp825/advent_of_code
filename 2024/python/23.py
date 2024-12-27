@@ -1,67 +1,53 @@
-#  AoC fatigue has set in, so the slowest, laziest, untuned brute-force you'll ever see.
-#  It's so dumb, it might be the worst solution I've ever written, but quick to write!
-
 from collections import defaultdict
 
 def parse_input(filepath):
 
-    return [tuple(x.split('-')) for x in open(filepath).read().split('\n')]
-
-
-def map_links(connections):
-
     links = defaultdict(set)
 
-    for a,b in connections:
+    for a,b in [tuple(x.split('-')) for x in open(filepath).read().split('\n')]:
         links[a].add(b)
         links[b].add(a)
 
-    return list(sorted(links.items()))
+    return links
 
 
 def groups_of_three(links):
 
     groups = []
-
-    for i, (one, a) in enumerate(links):
-        for two, b in links[i+1:]:
-            if two in a:
-                threes = a.intersection(b)
-                for three in threes:
-                    if two < three:
-                        groups += [(one,two,three)]
+    for a in links:
+        for b in [b for b in links[a] if a < b]:
+            for c in [c for c in links[b] if b < c and c in links[a]]:
+                groups += [(a,b,c)]
     return groups
 
 
-def most_connected(links, groups):
+def maximum_clique(groups, links):
 
-    queue = groups
+    queue = [set(g) for g in groups]
+    cliques = []
 
     while queue:
-        print(f"Items in Groups: {len(queue[0])}, Length of Queue: {len(queue)}")
-        new_queue = set()
-        while queue:
-            group = queue.pop(0)
-            for node, links_from in links:
-                if node not in group:
-                    intersect = links_from.intersection(group)
-                    if len(intersect) == len(group):
-                        new_group = tuple(sorted((*group, node)))
-                        new_queue.add(new_group)
+        a = queue.pop(0)
+        for b in queue:
+            for computer in a:
+                if computer not in b:
+                    match = sum(1 for x,y,z in [b] if computer in links[x] and computer in links[y] and computer in links[z])
+                    if not match: break
+            if match:
+                a.update(b)
+                queue.remove(b)
+        cliques.append(a)
 
-        queue = list(new_queue)
-
-    return ','.join(sorted(group))
+    return ','.join(sorted(max(cliques,key=len)))
 
 
 def main(filepath):
 
-    connections = parse_input(filepath)
-    links = map_links(connections)
+    links = parse_input(filepath)
     groups = groups_of_three(links)
-    password = most_connected(links, [] + groups)
+    password = maximum_clique(groups,links)
 
     return sum(1 for grp in groups if 't' in [x[0] for x in grp]), password
 
 
-print(main('23.txt'))
+print(timer(main,'23.txt'))
