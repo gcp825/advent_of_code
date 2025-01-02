@@ -1,151 +1,89 @@
-#  It's messy. It's brute force. It's part manual and it's not generic and only works for my input... but weirdly
-#  one of my favourite solutions. It's a triumph of persistence + logic over actually knowing and understanding
-#  what is actually happening at the lowest level of detail.
-#
-#  I started by learning how to manually add binary numbers and then doing that for x and y. I was then able to
-#  screw around with the carrys to produce the actual z output thus giving me a rough idea of where things were
-#  going awry in the system.
-#
-#  I then reformatted the input connections into node --> node dot format and pasted that into an online graphviz
-#  editor to visualise the system. Looking at that, with the aid of knowing roughly where the problems were, it was
-#  pretty easy to see where things were getting screwed up even without understanding the exact details of what part
-#  each node was playing in the calculation: you coud see a visual repeating pattern of nodes/connections that would
-#  then suddenly change, a new pattern would emerge, repeat, and then change again.
-#
-#  Making a note of the nodes in and around the 4 areas of change gave me a much smaller selection of potentially
-#  problem connections to swap... a number small enough that I could then brute force the answer using the Part 1 code,
-#  returning any swap combination where the actual answer for z matches x + y. Those manually built lists of nodes
-#  are hardcoded in the build_combinations function.
-#
-#  I hoped that trying the ~170k combinations of swaps would give me one conclusive answer. It didn't. It gave 1200
-#  possibilities. So, I then needed to add some more brute_force on top of that: for the remaining possibilities
-#  try adding 100 random-ish numbers to themselves (random within a range "in the ballpark of the actual numbers being
-#  added") and hopefully one combination is able to correctly add all of those together...
-#
-#  Annoyingly, this brings back 2 different combinations of swaps: one of which is the right answer. I can live with
-#  that though: I've fudged the code to always return the correct answer from those two combinations being identified.
-
+#  Originally solved with a combination of brute-force and manual inspection... but have since spent some time to
+#  understand the valid structure of an adder, and used that to automatically inspect, validate and fix the
+#  connections between gates and nodes.
 
 from operator import and_, or_, xor
-from itertools import combinations
-from random import randint
 
 def parse_input(filepath):
 
-    f = {'AND' : and_, 'OR' : or_, 'XOR' : xor}
     values, conns = open(filepath).read().split('\n\n')
-
     values = {k:int(v) for k,v in [tuple(v.split(': ')) for v in values.split('\n')]}
-    conns = [(d,f[b],a,c) for a,b,c,d in [tuple(c.replace('-> ','').split(' ')) for c in conns.split('\n')]]
+    conns = [(x[3],x[1],min(x[::2]),max(x[::2])) for x in [tuple(c.replace('-> ','').split(' ')) for c in conns.split('\n')]]
 
-    return conns, tuple(values.items())
+    return conns, values
 
 
-def run_program(connections, values):
+def run_program(conns, values):
 
-    while True:
-        length = len(connections)
-        new_connections = []
+    funcs = {'AND' : and_ ,'OR' : or_ ,'XOR' : xor}
+    connections = [] + conns
 
-        for target, op, a, b in connections:
-            if a in values and b in values:
-                values[target] = op(values[a],values[b])
-            else:
-                new_connections += [(target, op, a, b)]
+    while connections:
 
-        if len(new_connections) in (0,length):
-            break
+        target, op, a, b = connections.pop(0)
+
+        if a in values and b in values:
+            values[target] = funcs[op](values[a],values[b])
         else:
-            connections = new_connections
+            connections += [(target, op, a, b)]
 
-    if new_connections:
-        return (-1,-1)
-
-    nums = {key : ''.join(str(v) for _,v in sorted([(k,v) for k,v in values.items() if k.startswith(key)])) for key in 'xyz'}
-
-    return int(nums['z'][::-1],2),  int(nums['x'][::-1],2) + int(nums['y'][::-1],2)
+    return int(''.join(str(v) for k,v in sorted(values.items()) if k.startswith('z'))[::-1],2)
 
 
-def brute_force_part_2(conns, vals):
+def fix_connections(conns, values):
 
-    combos = build_combinations()
-    candidates = set()
+    swapped = []
+    carry = [c2 for c1 in conns for c2 in conns if c1[1:] == ('AND','x01','y01') and c1[0] in c2[2:] and c2[1] == 'OR'][0]
 
-    for i, combo in enumerate(combos):
+    for n in range(2,int(max(values)[1:])):
 
-        connections = update_connections([] + conns, combo)
-        values = dict(vals)
+        n = ('0' + str(n))[-2:]
+        adder = get_adder(n, conns, carry)
 
-        if i % 10000 == 0 and i > 0:
-            print(f"Tried {i} combinations...")
+        if len(adder) < 5 or adder[2][0] != f'z{n}':
+            swaps = (adder[2:3], [c for c in adder if c[0][0] == 'z']) if len(adder) >= 3 and adder[2][0] != f'z{n}' else (adder, adder[1:])
+            conns, swapped = swap_connections(conns, list(zip(*swaps)), swapped)
+            adder = get_adder(n, conns, carry)
 
-        actual, expected = run_program(connections, values)
-        if actual > 0:
-            if actual == expected:
-                candidates.add((combo,tuple(connections)))
+        carry = adder[-1]
 
-    scores = [test_candidate(combo, conns) for combo, conns in list(candidates)]
-
-    return list(sorted(scores))[-1][-1]
+    return ','.join(list(sorted(swapped)))
 
 
-def build_combinations():
+def get_adder(n, conns, carry):
 
-    dodgy = (["z16", "z17", "fbb", "tnn", "fkb", "rcc", "ccw", "kcm", "grr", "bss", "cjt"],
-             ["z21", "jsd", "hvv", "rqf", "nnr"],
-             ["z31", "rdn", "qsj", "tjk", "pct", "vtb"],
-             ["crk", "nbm", "z36", "z37", "gcg", "vhj", "rrn"])
+    Xor1  = [c for c in conns if tuplify(f'x{n}',f'y{n}') == c[2:] and c[1] == 'XOR']
+    And1  = [c for c in conns if tuplify(f'x{n}',f'y{n}') == c[2:] and c[1] == 'AND']
+    Xor2  = [c for c in conns if tuplify(Xor1, carry) == c[2:] and c[1] == 'XOR']
+    And2  = [c for c in conns if tuplify(Xor1, carry) == c[2:] and c[1] == 'AND']
+    Or    = [c for c in conns if tuplify(And1, And2) == c[2:] and c[1] == 'OR']
 
-    one   = list(combinations(dodgy[0],2))
-    two   = list(combinations(dodgy[1],2))
-    three = list(combinations(dodgy[2],2))
-    four  = list(combinations(dodgy[3],2))
-
-    return [(a,b,c,d) for a in one for b in two for c in three for d in four]
+    return [x[0] for x in (Xor1, And1, Xor2, And2, Or) if x]
 
 
-def update_connections(connections, combo):
+def tuplify(a,b):
 
-    for a,b in combo:
-        new_connections = []
-        for connection in connections:
-            if connection[0] == a:
-                new_connections += [(b,*connection[1:])]
-            elif connection[0] == b:
-                new_connections += [(a,*connection[1:])]
-            else:
-                new_connections += [connection]
-        connections = new_connections
+    tup = lambda x: x[0][0] if type(x) is list and x else x[0] if type(x) is tuple else x if type(x) is str else ''
 
-    return connections
+    return tuple(sorted((tup(a),tup(b))))
 
 
-def test_candidate(combo, connections):
+def swap_connections(conns, swaps, swapped):
 
-    match_count = 0
-    for n in range(100):
-        values = {}
-        number = randint(23000000000000, 29999999999999)
-        binary_number = bin(number)[2:][::-1]
-        for prefix in ('x','y'):
-            for i,bit in enumerate(binary_number):
-                values[prefix+('0'+str(i))[-2:]] = int(bit)
-        actual, expected = run_program(list(connections), values)
-        if actual >= 0 and actual == expected:
-            match_count += 1
-        else:
-            break
+    for a,b in swaps:
+        conns.remove(a)
+        conns.remove(b)
+        conns.append((a[0],*b[1:]))
+        conns.append((b[0],*a[1:]))
 
-    return (match_count, ','.join(list(sorted(sum(combo,())))))
+    return conns, swapped + sum([[c[0] for c in pair] for pair in swaps],[])
 
 
 def main(filepath):
 
-    conns, vals = parse_input(filepath)
-    part_1, _ = run_program(conns, dict(vals))
-    part_2 = brute_force_part_2(conns, vals)
+    conns, values = parse_input(filepath)
 
-    return part_1, part_2
+    return run_program(conns, values), fix_connections(conns, values)
 
 
 print(main('24.txt'))
