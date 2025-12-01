@@ -1,10 +1,12 @@
-def get_code(filepath, method, dial=50, code=0):
+def get_code(filepath, method, size=100, code=0):
 
+    dial = size // 2
     rotations = [({'L':-1}.get(line[0],1), int(line[1:])) for line in open(filepath).read().split('\n')]
 
     for sign, amt in rotations:
-        code += (amt//100) * (method-1) + (abs(method-2) if dial == 0 else 0 if 1 <= (dial + ((amt%100)*sign)) <= 99 else method-1)
-        dial = (dial + ((amt % 100) * sign)) % 100
+        clicks = (amt % size) * sign
+        code += (amt // size) * (method-1) + (abs(method-2) if dial == 0 else 0 if 1 <= (dial + clicks) < size else method-1)
+        dial = (dial + clicks) % size
 
     return code
 
