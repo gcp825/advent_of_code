@@ -8,7 +8,7 @@ def get_code(filepath, method, size=100, code=0):
         whole_rotations = amt // size
         clicks = (amt % size) * sign
 
-        passed_zero = 0 if dial == 0 else 0 if 1 <= (dial + clicks) < size else 1
+        passed_zero = 0 if dial == 0 or 1 <= (dial + clicks) < size else 1
         dial = (dial + clicks) % size
 
         code += whole_rotations + passed_zero if method == 2 else 1 if dial == 0 else 0
