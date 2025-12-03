@@ -7,13 +7,10 @@ def get_joltage(bank, number_of_batteries):
 
     joltage, remaining_bank = [], [] + bank
 
-    while number_of_batteries:
+    while number_of_batteries - len(joltage):
 
-        battery = max(remaining_bank[:len(remaining_bank) - number_of_batteries + 1])
-        remaining_bank = remaining_bank[remaining_bank.index(battery)+1:]
-
-        joltage += [battery]
-        number_of_batteries -= 1
+        joltage += [max(remaining_bank[:len(remaining_bank) - (number_of_batteries - len(joltage)) + 1])]
+        remaining_bank = remaining_bank[remaining_bank.index(joltage[-1])+1:]
 
     return int(''.join(map(str,joltage)))
 
