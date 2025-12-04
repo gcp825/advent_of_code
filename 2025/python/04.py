@@ -10,9 +10,9 @@ def calculate_neighbours(locations):
 
 def main(filepath):
 
-    removed = []
     locations = parse_input(filepath)
     neighbours = calculate_neighbours(locations)
+    removed = []
 
     while not removed or removed[-1]:
         removable = [loc for loc in locations if sum(1 for n in neighbours[loc] if n in locations) < 4]
