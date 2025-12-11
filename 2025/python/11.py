@@ -5,6 +5,7 @@ def parse_input(filepath):
 
     return tuple((x[0],tuple(x[1:])) for x in [line.split() for line in open(filepath).read().replace(':','').split('\n')])
 
+
 @cache
 def count_paths(graph,node,target):
 
