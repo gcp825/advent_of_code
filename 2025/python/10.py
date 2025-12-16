@@ -39,7 +39,7 @@ def parse_input(filepath):
     buttons  = [tuple(tuple(map(int,val[1:-1].split(','))) for val in machine[1:-1]) for machine in machines]
     joltage  = [list(map(int,machine[-1][1:-1].split(','))) for machine in machines]
 
-    return list(tuple(zip(patterns,buttons,joltage)))
+    return [Machine(p,b,j) for p,b,j in zip(patterns,buttons,joltage)]
 
 
 def push_buttons(machine):
@@ -76,10 +76,7 @@ def z3_solve(machine):
 
 def main(filepath):
 
-    machines = [Machine(*args) for args in parse_input(filepath)]
-    presses  = sum(push_buttons(machine) for machine in machines)
-
-    return presses, sum(z3_solve(machine) for machine in machines)
+    return tuple(sum(func(machine) for machine in parse_input(filepath)) for func in (push_buttons, z3_solve))
 
 
 print(main('10.txt'))
